@@ -5,6 +5,9 @@
   "private": true,
   "module": "esm",
   "dependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^29.2.3",
     "@types/node": "^18.11.9",
     "@types/react": "^18.0.25",
