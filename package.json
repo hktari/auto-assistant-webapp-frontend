@@ -3,12 +3,18 @@
   "version": "5.0.0",
   "description": "template for mdb-react-ui-kit",
   "private": true,
+  "module": "esm",
   "dependencies": {
+    "@types/jest": "^29.2.3",
+    "@types/node": "^18.11.9",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "mdb-react-ui-kit": "5.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4",
-    "mdb-react-ui-kit": "5.0.0"
+    "typescript": "^4.8.4",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
