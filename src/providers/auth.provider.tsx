@@ -23,35 +23,28 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // get user profile on app start if valid token exists
     useEffect(() => {
-        async function getUserProfile() {
+        async function getUserAccount() {
             try {
-                // todo: implement after backend has been updated
-                // const user = await accountService.getMyUserProfile()
-                // setUser(user)
-                setUser({
-                    id: '1',
-                    email: 'bkamnik1995@gmail.com',
-                    automationEnabled: true
-                })
+                const user = await accountService.getMyAccount()
+                setUser(user)
                 navigate('/dashboard')
             } catch (error: any) {
-                console.error('Failed to get user profilo info', error.message)
+                console.error('Failed to get user account', error.message)
             }
         }
 
         const accessToken = getValidTokenOrNull()
         if (accessToken) {
             setAuthBearer(accessToken)
-            getUserProfile()
+            getUserAccount()
         }
     }, [])
 
     const login = async (email: string, password: string) => {
-        const { email: userEmail, automationEnabled, token } = await authService.login(email, password)
+        const { id, email: userEmail, automationEnabled, token } = await authService.login(email, password)
 
-        // todo: get id from backend
         const user = {
-            id: "1",
+            id,
             email: userEmail,
             automationEnabled
         }

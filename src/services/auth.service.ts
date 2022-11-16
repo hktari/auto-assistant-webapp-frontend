@@ -1,7 +1,8 @@
 
+import { User } from '../interface/common.interface'
 import http from './http'
 
-function login(email: string, password: string): Promise<{ token: string, email: string, automationEnabled: boolean }> {
+function login(email: string, password: string): Promise<{ token: string } & User> {
     return http.post('/login', {
         email,
         password
