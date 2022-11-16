@@ -8,10 +8,10 @@ interface AuthContext {
     user: User | null
     login: (email: string, password: string) => Promise<User>
     logout: () => void
+    signup: (email: string, password: string) => Promise<string>
 }
 
-const AuthContext = createContext<AuthContext>(
-    { user: null, login: (email: string, password: string) => undefined!, logout: () => undefined })
+const AuthContext = createContext<AuthContext>({ user: null, login: null!, logout: null!, signup: null! })
 
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -27,7 +27,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         setUser(user)
         setAccessToken({ token })
-        
+
         return user
     }
 
@@ -35,7 +35,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         clearAccessToken()
     }
 
-    const value = { user, login, logout }
+    const signup = (email: string, password: string) => {
+        return authService.signup(email, password, true)
+    }
+
+    const value = { user, login, logout, signup }
 
     return (<AuthContext.Provider value={value}>{children}</AuthContext.Provider>)
 }

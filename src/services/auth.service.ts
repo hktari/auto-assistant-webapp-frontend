@@ -8,7 +8,7 @@ function login(email: string, password: string): Promise<{ token: string, email:
     })
 }
 
-function signup(email: string, password: string, automationEnabled: boolean) {
+function signup(email: string, password: string, automationEnabled: boolean): Promise<string> {
     return http.post('/signup', {
         email,
         password,
