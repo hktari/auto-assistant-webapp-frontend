@@ -4,6 +4,7 @@ export interface JWT {
 
 
 export interface User {
+    id: string
     email: string
     automationEnabled: boolean
 }

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { JWT, User } from "../interface/common.interface";
+import accountService from "../services/account/account.service";
 import authService from "../services/auth.service";
 import { setAuthBearer } from "../services/http";
 
@@ -10,16 +11,17 @@ interface AuthContext {
     logout: () => void
     signup: (email: string, password: string) => Promise<string>
     isLoggedIn: () => boolean
+    updateUser: (automationEnabled: boolean) => Promise<void>
 }
 
-const AuthContext = createContext<AuthContext>({ user: null, login: null!, logout: null!, signup: null!, isLoggedIn: null! })
+const AuthContext = createContext<AuthContext>({ user: null, login: null!, logout: null!, signup: null!, isLoggedIn: null!, updateUser: null! })
 
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
 
-      // get user profile on app start if valid token exists
-      useEffect(() => {
+    // get user profile on app start if valid token exists
+    useEffect(() => {
         async function getUserProfile() {
             try {
                 // todo: implement after backend has been updated
@@ -37,11 +39,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             getUserProfile()
         }
     }, [])
-    
+
     const login = async (email: string, password: string) => {
         const { email: userEmail, automationEnabled, token } = await authService.login(email, password)
 
+        // todo: get id from backend
         const user = {
+            id: "1",
             email: userEmail,
             automationEnabled
         }
@@ -61,7 +65,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const isLoggedIn = () => user !== null
-    const value = { user, login, logout, signup, isLoggedIn }
+
+    const updateUser = async (automationEnabled: boolean) => {
+        if (!user) {
+            throw new Error('AuthContext: user is null')
+        }
+
+        await accountService.update(user.id, automationEnabled)
+        setUser({
+            ...user,
+            automationEnabled
+        })
+    }
+
+    const value = { user, login, logout, signup, isLoggedIn, updateUser }
 
     return (<AuthContext.Provider value={value}>{children}</AuthContext.Provider>)
 }
