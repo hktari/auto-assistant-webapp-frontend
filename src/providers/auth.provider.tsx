@@ -1,10 +1,9 @@
 import { createContext, useContext, useState } from "react";
 import { useLocation, Navigate } from "react-router-dom";
+import { JWT, User } from "../interface/common.interface";
+import authService from "../services/auth.service";
+import { setAuthBearer } from "../services/http";
 
-
-interface User {
-
-}
 interface AuthContext {
     user: User | null
     login: (email: string, password: string) => Promise<User>
@@ -18,13 +17,22 @@ const AuthContext = createContext<AuthContext>(
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
 
-    const login = (email: string, password: string) => {
-        const user: User = {}
-        return Promise.resolve(user)
+    const login = async (email: string, password: string) => {
+        const { email: userEmail, automationEnabled, token } = await authService.login(email, password)
+
+        const user = {
+            email: userEmail,
+            automationEnabled
+        }
+
+        setUser(user)
+        setAccessToken({ token })
+        
+        return user
     }
 
     const logout = () => {
-
+        clearAccessToken()
     }
 
     const value = { user, login, logout }
@@ -50,5 +58,46 @@ export function RequireAuth({ children }: { children: JSX.Element }) {
 
     return children;
 }
+
+
+
+/* -------------------------- <access token handling> ------------------------- */
+
+function getValidTokenOrNull() {
+    const jwtJSON = localStorage.getItem('jwt')
+
+    if (jwtJSON) {
+        const jwt = JSON.parse(jwtJSON)
+        return jwt.token
+
+        // const jwt = JSON.parse(jwtJSON, (key, val) => {
+        //     if (key === 'expiresAt') {
+        //         return new Date(val)
+        //     }
+        //     return val
+        // }) as JWT
+
+        // if (jwt.expiresAt && jwt.expiresAt.getTime() > Date.now()) {
+        //     return jwt.token
+        // } else {
+        //     return null
+        // }
+    }
+
+    return null
+}
+
+function setAccessToken(jwt: JWT) {
+    localStorage.setItem("jwt", JSON.stringify(jwt));
+    setAuthBearer(jwt.token)
+}
+
+function clearAccessToken() {
+    localStorage.setItem("jwt", "");
+    setAuthBearer('')
+}
+
+/* -------------------------- </access token handling> ------------------------- */
+
 
 export default AuthProvider

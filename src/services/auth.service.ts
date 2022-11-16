@@ -1,7 +1,7 @@
 
 import http from './http'
 
-function login(email: string, password: string) {
+function login(email: string, password: string): Promise<{ token: string, email: string, automationEnabled: boolean }> {
     return http.post('/login', {
         email,
         password
