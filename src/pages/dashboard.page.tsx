@@ -72,7 +72,7 @@ const DashboardPage = (props: DashboardPageProps) => {
           <h2 className="mb-0 flex-grow-1">Dnevnik</h2>
           <MDBSpinner className={!updatingLogTable ? 'd-none' : ''} size='sm' role='status' tag='span' />
         </div>
-        <LogTable data={logs} />
+        <LogTable data={logs} reduced={true}/>
       </section>
 
     </MDBContainer >

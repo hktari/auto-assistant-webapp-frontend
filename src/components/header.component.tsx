@@ -49,18 +49,24 @@ const Header = (props: Props) => {
             >
               <MDBIcon icon='bars' fas />
             </MDBNavbarToggler>
-            <MDBCollapse navbar show={showNav}>
-              <MDBNavbarNav>
+            <MDBCollapse navbar show={showNav} >
+              <MDBNavbarNav className='justify-content-end'>
                 {isLoggedIn() ? (
                   <>
                     <MDBNavbarItem active={true}>
-                      <Link className="nav-link" to="/dashboard">Home</Link>
+                      <Link className="nav-link" to="/dashboard" onClick={() => setShowNav(!showNav)}>Home</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/logs">Logs</Link>
+                      <Link className="nav-link" to="/logs" onClick={() => setShowNav(!showNav)}>Logs</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <MDBBtn color='tertiary' onClick={performLogout}>
+                      <Link className="nav-link" to="/about">About</Link>
+                    </MDBNavbarItem>
+                    <MDBNavbarItem >
+                      <MDBBtn className='ms-lg-2 h-100' color='tertiary' onClick={() => {
+                        setShowNav(false);
+                        performLogout();
+                      }}>
                         Logout
                       </MDBBtn>
                     </MDBNavbarItem>
@@ -70,10 +76,10 @@ const Header = (props: Props) => {
                     <MDBNavbarItem>
                       <Link className="nav-link" to="/">Login</Link>
                     </MDBNavbarItem>
+                    <MDBNavbarItem>
+                      <Link className="nav-link" to="/about">About</Link>
+                    </MDBNavbarItem>
                   </>}
-                <MDBNavbarItem>
-                  <Link className="nav-link" to="/about">About</Link>
-                </MDBNavbarItem>
               </MDBNavbarNav>
             </MDBCollapse>
           </MDBContainer>
