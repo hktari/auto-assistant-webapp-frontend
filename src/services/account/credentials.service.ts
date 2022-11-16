@@ -1,6 +1,6 @@
+import { Credentials } from "../../interface/common.interface"
+import http from "../http"
 
-import { Credentials } from '../interface/common.interface'
-import http from './http'
 
 
 function getCredentials(accountId: string): Promise<Credentials> {
@@ -18,10 +18,10 @@ function deleteCredentials(accountId: string): Promise<string> {
     return http.delete(`/account/${accountId}/login-info`)
 }
 
-const accountService = {
+const credentialsService = {
     addCredentials,
     deleteCredentials,
     getCredentials
 }
 
-export default accountService
+export default credentialsService
