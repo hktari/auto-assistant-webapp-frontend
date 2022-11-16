@@ -1,6 +1,36 @@
+* {
+  margin: 0;
+}
+
+:root {
+  --footer-height: 50px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.page-wrap {
+  min-height: 100%;
+  /* equal to footer height */
+  margin-bottom: calc(-1 * var(--footer-height));
+}
+
+.page-wrap:after {
+  content: "";
+  display: block;
+}
+
+.site-footer,
+.page-wrap:after {
+  height: var(--footer-height);
+}
+
 /* account for height of navbar */
- .main::before {
-   content: '';
-   display: block;
-   height: 45.5px;
- }
+.main::before {
+  content: '';
+  display: block;
+  height: 45.5px;
+}
