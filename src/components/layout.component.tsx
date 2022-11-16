@@ -10,7 +10,7 @@ const Layout = () => {
         <>
             <div className="page-wrap">
                 <Header />
-                <main>
+                <main className='main'>
                     <Outlet />
                 </main>
             </div>

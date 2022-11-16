@@ -9,9 +9,10 @@ interface AuthContext {
     login: (email: string, password: string) => Promise<User>
     logout: () => void
     signup: (email: string, password: string) => Promise<string>
+    isLoggedIn: () => boolean
 }
 
-const AuthContext = createContext<AuthContext>({ user: null, login: null!, logout: null!, signup: null! })
+const AuthContext = createContext<AuthContext>({ user: null, login: null!, logout: null!, signup: null!, isLoggedIn: null! })
 
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -39,7 +40,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return authService.signup(email, password, true)
     }
 
-    const value = { user, login, logout, signup }
+    const isLoggedIn = () => user !== null
+    const value = { user, login, logout, signup, isLoggedIn }
 
     return (<AuthContext.Provider value={value}>{children}</AuthContext.Provider>)
 }

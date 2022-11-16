@@ -1,11 +1,6 @@
-body {
-  margin: 0;
-  font-family: Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+/* account for height of navbar */
+ .main::before {
+   content: '';
+   display: block;
+   height: 45.5px;
+ }
