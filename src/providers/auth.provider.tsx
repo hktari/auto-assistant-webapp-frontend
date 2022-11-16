@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import { JWT, User } from "../interface/common.interface";
 import accountService from "../services/account/account.service";
 import authService from "../services/auth.service";
@@ -19,7 +19,8 @@ const AuthContext = createContext<AuthContext>({ user: null, login: null!, logou
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
-
+    const navigate = useNavigate()
+    
     // get user profile on app start if valid token exists
     useEffect(() => {
         async function getUserProfile() {
@@ -27,7 +28,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 // todo: implement after backend has been updated
                 // const user = await accountService.getMyUserProfile()
                 // setUser(user)
-                // navigate('/dashboard')
+                setUser({
+                    id: '1',
+                    email: 'bkamnik1995@gmail.com',
+                    automationEnabled: true
+                })
+                navigate('/dashboard')
             } catch (error: any) {
                 console.error('Failed to get user profilo info', error.message)
             }

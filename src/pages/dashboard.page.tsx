@@ -1,4 +1,4 @@
-import { MDBBtn, MDBCol, MDBContainer, MDBRow, MDBTable, MDBTableBody, MDBTableHead } from 'mdb-react-ui-kit'
+import { MDBBtn, MDBCol, MDBContainer, MDBRow, MDBSpinner, MDBTable, MDBTableBody, MDBTableHead } from 'mdb-react-ui-kit'
 import React, { useEffect, useState } from 'react'
 import LogTable from '../components/log-table.component'
 import { LogEntry } from '../interface/common.interface'
@@ -11,6 +11,7 @@ type DashboardPageProps = {}
 const DashboardPage = (props: DashboardPageProps) => {
   const { user, updateUser } = useAuth()
   const [logs, setLogs] = useState<LogEntry[]>([])
+  const [updatingAutomationEnabled, setUpdatingAutomationEnabled] = useState(false)
 
   useEffect(() => {
     async function fetchLogs() {
@@ -26,10 +27,12 @@ const DashboardPage = (props: DashboardPageProps) => {
 
   async function setAutomationEnabled(enabled: boolean) {
     try {
+      setUpdatingAutomationEnabled(true)
       await updateUser(enabled)
-      console.log('OK')
     } catch (error) {
       console.error('failed to update automationEnabled', error)
+    } finally {
+      setUpdatingAutomationEnabled(false)
     }
   }
 
@@ -37,9 +40,16 @@ const DashboardPage = (props: DashboardPageProps) => {
     <MDBContainer>
       <section data-section="automation" className='mb-4'>
         <h2 className='mb-3'>Avtomatizacija</h2>
-        {user?.automationEnabled ?
-          <MDBBtn size='lg' color='danger' block={true} onClick={() => setAutomationEnabled(false)}>IZKLOPI</MDBBtn>
-          : <MDBBtn size='lg' color='success' block={true} onClick={() => setAutomationEnabled(true)}>VKLOPI</MDBBtn>}
+        <MDBBtn
+          size='lg'
+          color={user?.automationEnabled ? 'danger' : 'success'}
+          block={true}
+          disabled={updatingAutomationEnabled}
+          onClick={() => setAutomationEnabled(!user?.automationEnabled)}>
+          <MDBSpinner className={!updatingAutomationEnabled ? 'd-none me-2' : 'me-2'} size='sm' role='status' tag='span' />
+          <span hidden={!updatingAutomationEnabled}>Posodabljam...</span>
+          <span hidden={updatingAutomationEnabled}>{user?.automationEnabled ? 'IZKLOPI' : 'VKLOPI'}</span>
+        </MDBBtn>
       </section>
 
       <section data-section="logs">
