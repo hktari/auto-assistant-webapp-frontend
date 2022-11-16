@@ -1,10 +1,44 @@
-import React from 'react'
+import { MDBBtn, MDBCol, MDBContainer, MDBRow, MDBTable, MDBTableBody, MDBTableHead } from 'mdb-react-ui-kit'
+import React, { useEffect, useState } from 'react'
+import LogTable from '../components/log-table.component'
+import { LogEntry } from '../interface/common.interface'
+import { useAuth } from '../providers/auth.provider'
+import logsService from '../services/account/logs.service'
 
 type DashboardPageProps = {}
 
 const DashboardPage = (props: DashboardPageProps) => {
+  const { user } = useAuth()
+  const [logs, setLogs] = useState<LogEntry[]>([])
+
+  useEffect(() => {
+    async function fetchLogs() {
+      try {
+        setLogs(await logsService.all("1"))
+      } catch (error) {
+        console.error('failed to fetch logs', error)
+      }
+    }
+
+    fetchLogs()
+  }, [user])
+
+
   return (
-    <div>DashboardPage</div>
+    <MDBContainer>
+      <section data-section="automation" className='mb-4'>
+        <h2 className='mb-3'>Avtomatizacija</h2>
+        {user?.automationEnabled ?
+          <MDBBtn size='lg' color='danger' block={true}>IZKLOPI</MDBBtn>
+          : <MDBBtn size='lg' color='success' block={true}>VKLOPI</MDBBtn>}
+      </section>
+
+      <section data-section="logs">
+        <h2 className="mb-3">Dnevnik</h2>
+        <LogTable data={logs} />
+      </section>
+
+    </MDBContainer >
   )
 }
 
