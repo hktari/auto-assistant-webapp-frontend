@@ -1,7 +1,20 @@
-import { useState } from 'react'
-import { MDBNavbar } from 'mdb-react-ui-kit'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../providers/auth.provider'
+
+import React, { useState } from 'react';
+import {
+  MDBContainer,
+  MDBNavbar,
+  MDBNavbarBrand,
+  MDBNavbarToggler,
+  MDBNavbarNav,
+  MDBNavbarItem,
+  MDBNavbarLink,
+  MDBCollapse,
+  MDBIcon,
+  MDBBtn
+} from 'mdb-react-ui-kit';
+
 type Props = {}
 
 enum HeaderNavItemsType {
@@ -12,7 +25,7 @@ enum HeaderNavItemsType {
 
 const Header = (props: Props) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [navCollapsed, setNavCollapsed] = useState(true)
+  const [showNav, setShowNav] = useState(false);
 
   const { logout, isLoggedIn, user } = useAuth()
   const navigate = useNavigate()
@@ -25,45 +38,46 @@ const Header = (props: Props) => {
   return (
     <>
       <header className='header'>
-        <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-          <div className="container-fluid">
-            <button
-              className="navbar-toggler"
-              type="button"
-              onClick={() => setNavCollapsed(!navCollapsed)}
-              aria-controls="navbarExample01"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
+        <MDBNavbar expand='lg' light bgColor='light'>
+          <MDBContainer fluid>
+            <MDBNavbarBrand href='#'>MDDSZ Avtomatizacija</MDBNavbarBrand>
+            <MDBNavbarToggler
+              type='button'
+              aria-expanded='false'
+              aria-label='Toggle navigation'
+              onClick={() => setShowNav(!showNav)}
             >
-              <i className="fas fa-bars"></i>
-            </button>
-            <div className={`navbar-collapse ${navCollapsed ? 'collapse' : ''}`} id="navbarExample01">
-              <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+              <MDBIcon icon='bars' fas />
+            </MDBNavbarToggler>
+            <MDBCollapse navbar show={showNav}>
+              <MDBNavbarNav>
                 {isLoggedIn() ? (
                   <>
-                    <li className="nav-item active">
+                    <MDBNavbarItem active={true}>
                       <Link className="nav-link" to="/dashboard">Home</Link>
-                    </li>
-                    <li className="nav-item">
-                      <a className="nav-link" href="#">Logs</a>
-                    </li>
-                    <li className="nav-item">
-                      <button className="btn btn-secondary nav-link" onClick={performLogout}>Logout</button>
-                    </li>
+                    </MDBNavbarItem>
+                    <MDBNavbarItem>
+                      <Link className="nav-link" to="/logs">Logs</Link>
+                    </MDBNavbarItem>
+                    <MDBNavbarItem>
+                      <MDBBtn color='tertiary' onClick={performLogout}>
+                        Logout
+                      </MDBBtn>
+                    </MDBNavbarItem>
                   </>
                 ) :
                   <>
-                    <li className="nav-item">
+                    <MDBNavbarItem>
                       <Link className="nav-link" to="/">Login</Link>
-                    </li>
+                    </MDBNavbarItem>
                   </>}
-                <li className="nav-item">
-                  <a className="nav-link" href="#">About</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+                <MDBNavbarItem>
+                  <Link className="nav-link" to="/about">About</Link>
+                </MDBNavbarItem>
+              </MDBNavbarNav>
+            </MDBCollapse>
+          </MDBContainer>
+        </MDBNavbar>
       </header>
     </>
   )
