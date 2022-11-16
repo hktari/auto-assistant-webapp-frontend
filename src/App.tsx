@@ -1,25 +1,32 @@
 import React from 'react';
 import { MDBBtn, MDBContainer, MDBInputGroup } from 'mdb-react-ui-kit';
 import { MDBInput } from 'mdb-react-ui-kit';
+import AuthProvider, { RequireAuth } from './providers/auth.provider';
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Layout from './components/layout.component';
+import DashboardPage from './pages/dashboard.page';
+import LoginPage from './pages/login.page';
+import SignupPage from './pages/signup.page';
 
 function App() {
 
-  function performLogin(){
-    console.log('logging in...')
-  }
-  
+
   return (
-    <MDBContainer fluid>
-      <MDBInputGroup className='mb-3' >
-        <input className='form-control' type='email' placeholder="Email" />
-      </MDBInputGroup>
-
-      <MDBInputGroup className='mb-3' >
-        <input className='form-control' type='password' placeholder="Password" />
-      </MDBInputGroup>
-
-      <MDBBtn onClick={performLogin}>Login</MDBBtn>
-    </MDBContainer>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<LoginPage />} />
+            <Route path='signup' element={<SignupPage />} />
+            <Route path='dashboard' element={(
+              <RequireAuth>
+                <DashboardPage />
+              </RequireAuth>)} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter >
   );
 }
 
