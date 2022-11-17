@@ -54,30 +54,33 @@ const Header = (props: Props) => {
                 {isLoggedIn() ? (
                   <>
                     <MDBNavbarItem active={true}>
-                      <Link className="nav-link" to="/dashboard" onClick={() => setShowNav(!showNav)}>Home</Link>
+                      <Link className="nav-link" to="/dashboard" onClick={() => setShowNav(!showNav)}>Domov</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/logs" onClick={() => setShowNav(!showNav)}>Logs</Link>
+                      <Link className="nav-link" to="/credentials" onClick={() => setShowNav(!showNav)}>Nastavitve</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/about">About</Link>
+                      <Link className="nav-link" to="/logs" onClick={() => setShowNav(!showNav)}>Dnevnik</Link>
+                    </MDBNavbarItem>
+                    <MDBNavbarItem>
+                      <Link className="nav-link" to="/about">O programu</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem >
                       <MDBBtn className='ms-lg-2 h-100' color='tertiary' onClick={() => {
                         setShowNav(false);
                         performLogout();
                       }}>
-                        Logout
+                        Izpis
                       </MDBBtn>
                     </MDBNavbarItem>
                   </>
                 ) :
                   <>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/">Login</Link>
+                      <Link className="nav-link" to="/">Vpis</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/about">About</Link>
+                      <Link className="nav-link" to="/about">O programu</Link>
                     </MDBNavbarItem>
                   </>}
               </MDBNavbarNav>
