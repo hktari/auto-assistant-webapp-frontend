@@ -14,6 +14,13 @@ function addCredentials(accountId: string, username: string, password: string): 
     })
 }
 
+function updateCredentials(accountId: string, username : string, password: string): Promise<string>{
+    return http.put(`/account/${accountId}/login-info`, {
+        username,
+        password
+    })
+}
+
 function deleteCredentials(accountId: string): Promise<string> {
     return http.delete(`/account/${accountId}/login-info`)
 }
@@ -21,6 +28,7 @@ function deleteCredentials(accountId: string): Promise<string> {
 const credentialsService = {
     addCredentials,
     deleteCredentials,
+    updateCredentials,
     getCredentials
 }
 
