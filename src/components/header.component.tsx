@@ -57,7 +57,7 @@ const Header = (props: Props) => {
                       <Link className="nav-link" to="/dashboard" onClick={() => setShowNav(!showNav)}>Domov</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/credentials" onClick={() => setShowNav(!showNav)}>Nastavitve</Link>
+                      <Link className="nav-link" to="/configuration" onClick={() => setShowNav(!showNav)}>Nastavitve</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
                       <Link className="nav-link" to="/logs" onClick={() => setShowNav(!showNav)}>Dnevnik</Link>
