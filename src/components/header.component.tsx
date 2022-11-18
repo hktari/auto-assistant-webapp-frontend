@@ -63,7 +63,7 @@ const Header = (props: Props) => {
                       <Link className="nav-link" to="/logs" onClick={() => setShowNav(!showNav)}>Dnevnik</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/about">O programu</Link>
+                      <Link className="nav-link" to="/about" onClick={() => setShowNav(!showNav)}>O programu</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem >
                       <MDBBtn className='ms-lg-2 h-100' color='tertiary' onClick={() => {
@@ -77,10 +77,10 @@ const Header = (props: Props) => {
                 ) :
                   <>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/">Vpis</Link>
+                      <Link className="nav-link" to="/" onClick={() => setShowNav(!showNav)}>Vpis</Link>
                     </MDBNavbarItem>
                     <MDBNavbarItem>
-                      <Link className="nav-link" to="/about">O programu</Link>
+                      <Link className="nav-link" to="/about" onClick={() => setShowNav(!showNav)}>O programu</Link>
                     </MDBNavbarItem>
                   </>}
               </MDBNavbarNav>

@@ -10,6 +10,7 @@ import LoginPage from './pages/login.page';
 import SignupPage from './pages/signup.page';
 import CredentialsPage from './pages/credentials.page';
 import ConfigurationPage from './pages/configuration.page';
+import AboutPage from './pages/about.page';
 
 function App() {
 
@@ -21,12 +22,12 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<LoginPage />} />
             <Route path='signup' element={<SignupPage />} />
-            
+            <Route path='about' element={<AboutPage />} />
             <Route path='configuration' element={
               <RequireAuth>
                 <ConfigurationPage />
               </RequireAuth>} />
-          
+
             <Route path='credentials' element={
               <RequireAuth>
                 <CredentialsPage />

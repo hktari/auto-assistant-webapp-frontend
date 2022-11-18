@@ -27,3 +27,17 @@ export interface LogEntry {
     action:      string;
     config_type: string;
 }
+
+
+
+export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+
+export interface WorkweekConfiguration {
+    day: DayOfWeek
+
+    // format: hh:mm
+    startAt: string
+
+    // format: hh:mm
+    endAt: string
+}

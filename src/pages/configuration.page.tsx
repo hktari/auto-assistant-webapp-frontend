@@ -1,10 +1,15 @@
-import { MDBBtn, MDBContainer } from 'mdb-react-ui-kit'
-import React from 'react'
+import { MDBBtn, MDBContainer, MDBInput, MDBTable, MDBTableBody, MDBTableHead } from 'mdb-react-ui-kit'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import WorkweekTable from '../components/configuration/workweek-table.component'
+import { useAuth } from '../providers/auth.provider'
 
 type ConfigurationPageProps = {}
 
-const ConfigurationPage = (props: ConfigurationPageProps) => {
+const ConfigurationPage = function (props: ConfigurationPageProps) {
+
+    const { user } = useAuth()
+
     return (
         <MDBContainer>
             <h2 className='mb-4'>Nastavitve</h2>
@@ -19,9 +24,7 @@ const ConfigurationPage = (props: ConfigurationPageProps) => {
 
             <section className="my-4" data-section="week-config">
                 <h3>Delovni teden</h3>
-                render mon-sun
-                <br></br>
-                insert start-end times
+                <WorkweekTable accountId={user?.id!} />
             </section>
 
             <section className="my-4" data-section="exceptions-config">
