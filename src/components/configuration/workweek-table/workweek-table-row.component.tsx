@@ -1,16 +1,15 @@
 import React, { useState } from 'react'
 import { MDBInput } from 'mdb-react-ui-kit'
+import { DayOfWeek } from '../../../interface/common.interface'
 
 type WorkweekTableRowProps = {
-    title: string
+    day: DayOfWeek
     startAt: string
     endAt: string
+    updateAction: (day: DayOfWeek, startAt: string, endAt: string) => void
 }
 
-const WorkweekTableRow = ({ title, startAt, endAt }: WorkweekTableRowProps) => {
-    const [startAtTime, setStartAtTime] = useState(startAt)
-    const [endAtTime, setEndAtTime] = useState(endAt)
-
+const WorkweekTableRow = ({ day, startAt, endAt, updateAction }: WorkweekTableRowProps) => {
     const daysOfWeekMap = new Map([
         ['mon', 'pon'],
         ['tue', 'tor'],
@@ -23,13 +22,21 @@ const WorkweekTableRow = ({ title, startAt, endAt }: WorkweekTableRowProps) => {
 
     return (
         <tr>
-            <th scope='row'>{daysOfWeekMap.get(title)}</th>
+            <th scope='row'>{daysOfWeekMap.get(day)}</th>
             <td>
-                <MDBInput type='time' value={startAtTime} onChange={e => setStartAtTime(e.currentTarget.value)}>
+                <MDBInput
+                    type='time'
+                    value={startAt}
+                    onChange={e => {
+                        updateAction(day, e.currentTarget.value, endAt)
+                    }}>
                 </MDBInput>
             </td>
             <td>
-                <MDBInput type='time' value={endAtTime} onChange={e => setEndAtTime(e.currentTarget.value)}>
+                <MDBInput
+                    type='time'
+                    value={endAt}
+                    onChange={e => updateAction(day, startAt, e.currentTarget.value)}>
                 </MDBInput>
             </td>
         </tr>
