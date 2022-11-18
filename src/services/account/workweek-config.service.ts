@@ -29,7 +29,7 @@ export function mapWorkweekConfigToPayload(workweekConfig: WorkweekConfiguration
     }
 
     return {
-        days: tmp
+        days: Object.fromEntries(tmp)
     }
 }
 
