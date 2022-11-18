@@ -1,4 +1,4 @@
-import { MDBTable, MDBTableHead, MDBTableBody, MDBInput, MDBBtn } from 'mdb-react-ui-kit'
+import { MDBTable, MDBTableHead, MDBTableBody, MDBInput, MDBBtn, MDBSpinner } from 'mdb-react-ui-kit'
 import React, { useEffect, useRef, useState } from 'react'
 import { DayOfWeek, WorkweekConfiguration } from '../../interface/common.interface'
 import workweekConfigApi from '../../services/account/workweek-config.service'
@@ -12,6 +12,7 @@ type WorkweekTableProps = {
 const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     const [workweekData, setWorkweekData] = useState<WorkweekConfiguration[]>([])
     const [dataChanged, setDataChanged] = useState(false)
+    const [performingUpdate, setPerformingUpdate] = useState(false)
     const originalWorkweekData = useRef<WorkweekConfiguration[]>([])
 
 
@@ -32,6 +33,17 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
         }
     }, [workweekData])
 
+
+    async function performWorkweekUpdate() {
+        try {
+            setPerformingUpdate(true)
+            await workweekConfigApi.addOrUpdate(accountId, workweekData)
+        } catch (error) {
+            console.error('failed to update workweek', error)
+        } finally {
+            setPerformingUpdate(false)
+        }
+    }
 
     async function fetchWorkweekData() {
         try {
@@ -82,7 +94,10 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
                         updateAction={setTimeForDay} />))}
                 </MDBTableBody>
             </MDBTable>
-            <MDBBtn className='mb-2 d-block ms-auto' disabled={!dataChanged}>Shrani</MDBBtn>
+            <MDBBtn className='mb-2 d-block ms-auto' onClick={() => performWorkweekUpdate()} disabled={!dataChanged || performingUpdate}>
+                <MDBSpinner className={!performingUpdate ? 'd-none' : ''} size='sm' role='status' tag='span' />
+                <span hidden={performingUpdate} >Shrani</span>
+            </MDBBtn>
         </>
     )
 }
