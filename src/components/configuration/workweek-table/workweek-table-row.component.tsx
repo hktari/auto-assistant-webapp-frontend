@@ -20,6 +20,8 @@ const WorkweekTableRow = ({ day, startAt, endAt, updateAction }: WorkweekTableRo
         ['sun', 'ned']
     ])
 
+
+
     return (
         <tr>
             <th scope='row'>{daysOfWeekMap.get(day)}</th>

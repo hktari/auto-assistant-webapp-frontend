@@ -37,7 +37,12 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     async function performWorkweekUpdate() {
         try {
             setPerformingUpdate(true)
-            await workweekConfigApi.addOrUpdate(accountId, workweekData)
+
+            // filter out rows where startAt and endAt equal ''
+            const filteredWorkweekData = workweekData.filter(d => d.endAt.trim() && d.startAt.trim())
+            console.log(`${filteredWorkweekData.length} of ${workweekData.length} valid to send`)
+
+            await workweekConfigApi.addOrUpdate(accountId, filteredWorkweekData)
         } catch (error) {
             console.error('failed to update workweek', error)
         } finally {
@@ -76,28 +81,49 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
 
     }
 
+    // either both values are defined or both are ''
+    function validateWorkweekData() {
+        return workweekData.every(d =>
+            (d.startAt.trim() && d.endAt.trim()) ||
+            (!d.endAt.trim() && !d.startAt.trim()))
+    }
+
     return (
         <>
-            <MDBTable borderless>
-                <MDBTableHead className='table-dark'>
-                    <tr>
-                        <th scope='col'><span className='text-nowrap'>Dan v tednu</span></th>
-                        <th scope='col'>Začetek</th>
-                        <th scope='col'>Konec</th>
-                    </tr>
-                </MDBTableHead>
-                <MDBTableBody>
-                    {workweekData.map((d, idx) =>
-                    (<WorkweekTableRow
-                        key={`576c0255545645f78a40cfe6154e6e85${idx}`}
-                        day={d.day} startAt={d.startAt} endAt={d.endAt}
-                        updateAction={setTimeForDay} />))}
-                </MDBTableBody>
-            </MDBTable>
-            <MDBBtn className='mb-2 d-block ms-auto' onClick={() => performWorkweekUpdate()} disabled={!dataChanged || performingUpdate}>
-                <MDBSpinner className={!performingUpdate ? 'd-none' : ''} size='sm' role='status' tag='span' />
-                <span hidden={performingUpdate} >Shrani</span>
-            </MDBBtn>
+            <form onSubmit={ev => {
+                ev.preventDefault()
+                // todo: validate there is no partial day configuration
+                if (validateWorkweekData()) {
+                    console.log('valid')
+                    performWorkweekUpdate()
+                } else {
+                    window.alert('invalid data')
+                }
+            }}>
+                <MDBTable borderless>
+                    <MDBTableHead className='table-dark'>
+                        <tr>
+                            <th scope='col'><span className='text-nowrap'>Dan v tednu</span></th>
+                            <th scope='col'>Začetek</th>
+                            <th scope='col'>Konec</th>
+                        </tr>
+                    </MDBTableHead>
+                    <MDBTableBody>
+                        {workweekData.map((d, idx) =>
+                        (<WorkweekTableRow
+                            key={`576c0255545645f78a40cfe6154e6e85${idx}`}
+                            day={d.day} startAt={d.startAt} endAt={d.endAt}
+                            updateAction={setTimeForDay} />))}
+                    </MDBTableBody>
+                </MDBTable>
+                <MDBBtn
+                    className='mb-2 d-block ms-auto'
+                    type='submit'
+                    disabled={!dataChanged || performingUpdate}>
+                    <MDBSpinner className={!performingUpdate ? 'd-none' : ''} size='sm' role='status' tag='span' />
+                    <span hidden={performingUpdate} >Shrani</span>
+                </MDBBtn>
+            </form>
         </>
     )
 }
