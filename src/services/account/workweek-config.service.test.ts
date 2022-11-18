@@ -3,7 +3,7 @@ import http from '../http'
 jest.mock('http')
 
 import { WorkweekConfiguration } from '../../interface/common.interface'
-import { mapWorkweekConfigToPayload } from './workweek-config.service'
+import { mapWorkweekConfigToDto } from './workweek-config.service'
 
 describe('workweek-config.service', () => {
     test('mapWorkweekConfigToPayload to have correct format', () => {
@@ -33,6 +33,6 @@ describe('workweek-config.service', () => {
             }
         }
 
-        expect(mapWorkweekConfigToPayload(sample)).toMatchObject(expectedResult)
+        expect(mapWorkweekConfigToDto(sample)).toMatchObject(expectedResult)
     })
 })

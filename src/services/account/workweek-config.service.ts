@@ -1,10 +1,20 @@
 import { WorkweekConfiguration } from '../../interface/common.interface'
 import http from '../http'
 
-function get(accountId: string): Promise<WorkweekConfiguration[]> {
-    return http.get(`/account/${accountId}/workweek`)
+
+async function get(accountId: string): Promise<WorkweekConfiguration[]> {
+    const responseDto: any[] = await http.get(`/account/${accountId}/workweek`)
+    return responseDto.map(dto => mapDtoToModel(dto))
 }
 
+async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfiguration[]): Promise<string> {
+    try {
+        await http.delete(`/account/${accountId}/workweek`)
+    } catch (error) {
+        console.debug('adding workweek configuration. None exists', error)
+    }
+    return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToDto(workweekConfig))
+}
 
 
 /**
@@ -18,7 +28,7 @@ function get(accountId: string): Promise<WorkweekConfiguration[]> {
         ...
     }
  */
-export function mapWorkweekConfigToPayload(workweekConfig: WorkweekConfiguration[]) {
+export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) {
     const tmp = new Map()
 
     for (const wwc of workweekConfig) {
@@ -33,14 +43,17 @@ export function mapWorkweekConfigToPayload(workweekConfig: WorkweekConfiguration
     }
 }
 
-async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfiguration[]): Promise<string> {
-    try {
-        await http.delete(`/account/${accountId}/workweek`)
-    } catch (error) {
-        console.debug('adding workweek configuration. None exists', error)
+
+function mapDtoToModel(dto: any): WorkweekConfiguration {
+    if (!dto) {
+        throw new Error('failed to map to WorkweekConfiguration: ' + dto)
     }
 
-    return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToPayload(workweekConfig))
+    return {
+        day: dto.day,
+        startAt: dto.start_at,
+        endAt: dto.end_at
+    }
 }
 
 const workweekConfigApi = {

@@ -1,6 +1,7 @@
 import { MDBTable, MDBTableHead, MDBTableBody, MDBInput } from 'mdb-react-ui-kit'
 import React, { useEffect, useState } from 'react'
 import { WorkweekConfiguration } from '../../interface/common.interface'
+import workweekConfigApi from '../../services/account/workweek-config.service'
 import WorkweekTableRow from './workweek-table/workweek-table-row.component'
 
 type WorkweekTableProps = {
@@ -17,7 +18,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
 
     async function fetchWorkweekData() {
         try {
-
+            setWorkweekData(await workweekConfigApi.get(accountId))
         } catch (error) {
             console.error('failed to fetch workweek data', error)
         }
