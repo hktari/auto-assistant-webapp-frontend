@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { Calendar, momentLocalizer, Event } from 'react-big-calendar'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Calendar, momentLocalizer, Event, SlotInfo } from 'react-big-calendar'
 import moment from 'moment'
 import { useAuth } from '../../providers/auth.provider'
 import workweekConfigApi from '../../services/account/workweek-config.service'
 import workdayApi from '../../services/account/workday.service'
 import { dateToDayOfWeek, timeAtToDate } from '../../services/util'
 import { WorkweekConfiguration } from '../../interface/common.interface'
+import CalendarEditConfigModal from '../calendar-edit-config-modal.component'
 
-type ExceptionConfigTableProps = {
+type CalendarConfigProps = {
 }
 
-const ExceptionConfigTable = (props: ExceptionConfigTableProps) => {
+const CalendarConfig = (props: CalendarConfigProps) => {
     const [events, setEvents] = useState<Event[]>([
         {
             title: 'Learn cool stuff',
@@ -24,6 +25,23 @@ const ExceptionConfigTable = (props: ExceptionConfigTableProps) => {
     useEffect(() => {
         fetchEvents()
     }, [user])
+
+    const handleSelectSlot = useCallback(
+        ({ start, end }: SlotInfo) => {
+            const title = window.prompt('New Event name')
+            if (title) {
+                setEvents((prev) => [...prev, { start, end, title }])
+            }
+        },
+        [setEvents]
+    )
+
+    const handleSelectEvent = useCallback(
+        (event: Event) => {
+            setEditEvent(event)
+        },
+        []
+    )
 
     async function fetchEvents() {
         const events: Event[] = []
@@ -67,10 +85,17 @@ const ExceptionConfigTable = (props: ExceptionConfigTableProps) => {
             title: 'test',
             start: timeAtToDate(date, configForDay.startAt),
             end: timeAtToDate(date, configForDay.endAt),
+            resource: configForDay
         }
     }
 
     const localizer = momentLocalizer(moment)
+
+    const [editEvent, setEditEvent] = useState<Event | undefined>()
+
+    function onSaveEvent(updated: Event, original: Event) {
+        console.debug('saving event', updated)
+    }
 
     return (
         <div>
@@ -80,9 +105,13 @@ const ExceptionConfigTable = (props: ExceptionConfigTableProps) => {
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: 500 }}
+                selectable
+                onSelectEvent={handleSelectEvent}
+                onSelectSlot={handleSelectSlot}
             />
+            <CalendarEditConfigModal event={editEvent} onSave={onSaveEvent} />
         </div>
     )
 }
 
-export default ExceptionConfigTable
+export default CalendarConfig
