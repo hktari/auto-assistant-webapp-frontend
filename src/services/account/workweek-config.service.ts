@@ -1,4 +1,4 @@
-import { WorkweekConfiguration } from '../../interface/common.interface'
+import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
 
 
@@ -16,6 +16,33 @@ async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfigurat
     return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToDto(workweekConfig))
 }
 
+function addException(accountId: string, { date, action }: WorkweekException): Promise<WorkweekException> {
+    // format: YYYY-MM-DD
+    const dateFormat = date.toISOString().substring(0, 10)
+    return http.post(`/account/${accountId}/workweek-exception/`, {
+        date: dateFormat,
+        action,
+        day: dateToDayOfWeek(date)
+    })
+}
+
+function getExceptions(accountId: string): Promise<WorkweekException[]> {
+    return http.get(`/account/${accountId}/workweek-exception`)
+}
+
+function removeException(accountId: string, workweekExceptionId: string): Promise<string> {
+    return http.delete(`/account/${accountId}/workweek-exception/${workweekExceptionId}`)
+}
+
+
+/* --------------------------------- utility -------------------------------- */
+
+function dateToDayOfWeek(date: Date) {
+    // start with sunday
+    const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+
+    return daysOfWeek[date.getUTCDay()]
+}
 
 /**
  * Output:
@@ -58,7 +85,10 @@ function mapDtoToModel(dto: any): WorkweekConfiguration {
 
 const workweekConfigApi = {
     get,
-    addOrUpdate
+    addOrUpdate,
+    getExceptions,
+    addException,
+    removeException
 }
 
 export default workweekConfigApi

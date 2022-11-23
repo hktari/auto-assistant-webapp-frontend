@@ -19,12 +19,12 @@ export interface Credentials {
 
 
 export interface LogEntry {
-    id:          string;
-    status:      string;
-    timestamp:   Date;
-    error:       null;
-    message:     string;
-    action:      string;
+    id: string;
+    status: string;
+    timestamp: Date;
+    error: null;
+    message: string;
+    action: string;
     config_type: string;
 }
 
@@ -40,4 +40,30 @@ export interface WorkweekConfiguration {
 
     // format: hh:mm
     endAt: string
+}
+
+export interface WorkdayConfiguration {
+    day?: string,
+    login_info_id?: string,
+
+    // format: YYY-MM-DD
+    date: string,
+
+    // format: hh:mm
+    start_at: string,
+
+    // format: hh:mm
+    end_at: string
+}
+
+export enum AutomationAction {
+    StartBtn = 'start_btn',
+    StopBtn = 'stop_btn'
+
+}
+
+export interface WorkweekException{
+    id?: string
+    date: Date
+    action: AutomationAction
 }
