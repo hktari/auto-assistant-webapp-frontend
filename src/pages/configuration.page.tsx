@@ -1,6 +1,7 @@
 import { MDBBtn, MDBContainer, MDBInput, MDBTable, MDBTableBody, MDBTableHead } from 'mdb-react-ui-kit'
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import ExceptionConfigTable from '../components/configuration/exception-config-table.component'
 import WorkweekTable from '../components/configuration/workweek-table.component'
 import { useAuth } from '../providers/auth.provider'
 
@@ -29,7 +30,7 @@ const ConfigurationPage = function (props: ConfigurationPageProps) {
 
             <section className="my-4" data-section="exceptions-config">
                 <h3>Izjeme</h3>
-                render month
+                <ExceptionConfigTable />
                 <br />
                 on day of month click, either add daily config or add weekly exception
             </section>

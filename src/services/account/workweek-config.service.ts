@@ -1,5 +1,6 @@
 import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
+import { dateToDayOfWeek } from '../util'
 
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
@@ -36,13 +37,6 @@ function removeException(accountId: string, workweekExceptionId: string): Promis
 
 
 /* --------------------------------- utility -------------------------------- */
-
-function dateToDayOfWeek(date: Date) {
-    // start with sunday
-    const daysOfWeek = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-
-    return daysOfWeek[date.getUTCDay()]
-}
 
 /**
  * Output:
