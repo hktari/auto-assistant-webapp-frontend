@@ -36,9 +36,7 @@ function mockLogs() {
 }
 
 function all(accountId: string): Promise<LogEntry[]> {
-    return Promise.resolve(mockLogs())
-    // TODO: uncomment
-    // return http.get(`/account/${accountId}/log-entry`)
+    return http.get(`/account/${accountId}/log-entry`)
 }
 
 function deleteAll(accounId: string): Promise<{ deletedCount: number }> {
