@@ -11,6 +11,7 @@ type WorkweekTableProps = {
 
 const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     const [workweekData, setWorkweekData] = useState<WorkweekConfiguration[]>([])
+    const [validationErrors, setValidationErrors] = useState(new Map())
     const [dataChanged, setDataChanged] = useState(false)
     const [performingUpdate, setPerformingUpdate] = useState(false)
     const originalWorkweekData = useRef<WorkweekConfiguration[]>([])
@@ -103,21 +104,30 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
 
     // either both values are defined or both are ''
     function validateWorkweekData() {
-        return workweekData.every(d =>
-            (d.startAt.trim() && d.endAt.trim()) ||
-            (!d.endAt.trim() && !d.startAt.trim()))
+        const errors = new Map()
+
+        console.debug(workweekData)
+        const invalidConfigs = workweekData.filter(d =>
+            (d.startAt.trim() && !d.endAt.trim()) ||
+            (!d.startAt.trim() && d.endAt.trim()))
+
+        console.debug('invalid configurations', invalidConfigs)
+
+        for (const invalid of invalidConfigs) {
+            errors.set(invalid.day, 'Vnesi začetek in konec')
+        }
+
+        setValidationErrors(errors)
+
+        return errors.size === 0
     }
 
     return (
         <>
             <form onSubmit={ev => {
                 ev.preventDefault()
-                // todo: validate there is no partial day configuration
                 if (validateWorkweekData()) {
-                    console.log('valid')
                     performWorkweekUpdate()
-                } else {
-                    window.alert('invalid data')
                 }
             }}>
                 <MDBTable borderless>
@@ -132,6 +142,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
                         {workweekData.map((d, idx) =>
                         (<WorkweekTableRow
                             key={`576c0255545645f78a40cfe6154e6e85${idx}`}
+                            validationError={validationErrors.get(d.day)}
                             day={d.day} startAt={d.startAt} endAt={d.endAt}
                             updateAction={setTimeForDay} />))}
                     </MDBTableBody>
