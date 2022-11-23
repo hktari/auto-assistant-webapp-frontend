@@ -130,7 +130,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
                     performWorkweekUpdate()
                 }
             }}>
-                <MDBTable borderless>
+                <MDBTable responsive={true} borderless>
                     <MDBTableHead className='table-dark'>
                         <tr>
                             <th scope='col'><span className='text-nowrap'>Dan v tednu</span></th>
