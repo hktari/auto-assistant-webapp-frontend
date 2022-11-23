@@ -53,7 +53,11 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     async function fetchWorkweekData() {
         try {
             const response = await workweekConfigApi.get(accountId)
+
+            addMissingDays(response)
+
             originalWorkweekData.current = response
+
             setWorkweekData(response)
         } catch (error) {
             console.error('failed to fetch workweek data', error)
@@ -79,6 +83,22 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
         tmp.splice(rowToUpdateIdx, 1, updatedRow)
         setWorkweekData(tmp)
 
+    }
+
+    // The api doesn't return all days of the week.
+    // add those for which there is no configuration yet
+    function addMissingDays(workweek: WorkweekConfiguration[]) {
+        const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+        for (const day of daysOfWeek) {
+            if (!workweek.some(wwc => wwc.day === day)) {
+                const missingWorkweekConfig: WorkweekConfiguration = {
+                    day: day as DayOfWeek,
+                    startAt: '',
+                    endAt: ''
+                }
+                workweek.splice(daysOfWeek.indexOf(day), 0, missingWorkweekConfig)
+            }
+        }
     }
 
     // either both values are defined or both are ''
