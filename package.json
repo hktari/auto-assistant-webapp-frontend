@@ -1,7 +1,7 @@
 {
-  "name": "mdb-react-template",
+  "name": "mddszauto",
   "version": "5.0.0",
-  "description": "template for mdb-react-ui-kit",
+  "description": "",
   "private": true,
   "module": "esm",
   "dependencies": {
@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && cp _redirects /build",
+    "build": "react-scripts build && mv _redirects build",
     "test": "jest test",
     "eject": "react-scripts eject"
   },
