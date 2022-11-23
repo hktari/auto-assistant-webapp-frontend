@@ -2,27 +2,21 @@ import { MDBModal, MDBModalDialog, MDBModalContent, MDBModalHeader, MDBModalTitl
 import React, { useEffect, useState } from 'react'
 import { Event } from 'react-big-calendar'
 
-export interface EditEventRequest {
-    startAt: Date
-    endAt: Date
-    event: Event
-}
-
 type CalendarEditConfigModalProps = {
-    requestData?: EditEventRequest
-    onSave: (startAt: Date, endAt: Date, event: Event) => void
+    event?: Event
+    onSave: (updated: Event, original: Event) => void
 }
 
-const CalendarEditConfigModal = ({ requestData, onSave }: CalendarEditConfigModalProps) => {
-    const [startAt, setStartAt] = useState<string>(requestData?.startAt.toISOString() ?? '')
-    const [endAt, setEndAt] = useState<string>(requestData?.endAt.toISOString() ?? '')
+const CalendarEditConfigModal = ({ event, onSave }: CalendarEditConfigModalProps) => {
+    const [startAt, setStartAt] = useState<string>(event?.start?.toISOString() ?? '')
+    const [endAt, setEndAt] = useState<string>(event?.end?.toISOString() ?? '')
     const [showModal, setShowModal] = useState(false);
 
     const toggleShow = () => setShowModal(!showModal);
 
     useEffect(() => {
-        setShowModal(requestData ? true : false)
-    }, [requestData])
+        setShowModal(event ? true : false)
+    }, [event])
 
     return (
         <MDBModal show={showModal} setShow={setShowModal} tabIndex='-1'>
@@ -50,7 +44,11 @@ const CalendarEditConfigModal = ({ requestData, onSave }: CalendarEditConfigModa
                             Close
                         </MDBBtn>
                         <MDBBtn onClick={() => {
-                            onSave(new Date(startAt), new Date(endAt), requestData?.event!)
+                            onSave({
+                                ...event,
+                                start: new Date(startAt),
+                                end: new Date(endAt)
+                            },event!)
                             toggleShow()
                         }}>Save changes</MDBBtn>
                     </MDBModalFooter>
