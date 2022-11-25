@@ -4,6 +4,7 @@
 
 :root {
   --footer-height: 50px;
+  --header-height: 45.5px;
 }
 
 html,
@@ -32,5 +33,5 @@ body,
 .main::before {
   content: '';
   display: block;
-  height: 45.5px;
+  height: var(--header-height);
 }

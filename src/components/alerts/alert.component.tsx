@@ -20,19 +20,11 @@ const AlertComponent = ({ alert }: AlertComponentProps) => {
             case AlertType.warning:
                 return 'alert-warning'
             case AlertType.info:
-                return 'alert-infos'
+                return 'alert-info'
             default:
                 throw new Error('unhandled AlertType: ' + type)
         }
     }
-
-    useEffect(() => {
-        const removeTimeout = setTimeout(() => {
-            removeAlert(alert)
-        }, DISMISS_ALERT_AFTER_MS)
-
-        return () => clearTimeout(removeTimeout)
-    }, [alert])
 
     return (
         <div

@@ -1,6 +1,6 @@
 .c-alert-container {
     position: fixed;
-    top: 0;
+    top: var(--header-height);
     right: 0;
     padding: 16px;
     z-index: 99;
