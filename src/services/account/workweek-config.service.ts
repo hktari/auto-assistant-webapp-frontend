@@ -1,6 +1,6 @@
 import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
-import { dateToDayOfWeek, timeStringToUTC } from '../util'
+import { dateToDayOfWeek, localTimeStringToUTC } from '../util'
 
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
@@ -58,8 +58,8 @@ export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) 
 
     for (const wwc of workweekConfig) {
         tmp.set(wwc.day, {
-            start_at: timeStringToUTC(wwc.startAt),
-            end_at: timeStringToUTC(wwc.endAt)
+            start_at: localTimeStringToUTC(wwc.startAt),
+            end_at: localTimeStringToUTC(wwc.endAt)
         })
     }
 
@@ -69,6 +69,12 @@ export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) 
 }
 
 
+/**
+ * Maps the DTO to WorkweekConfiguration object.
+ * Converts time strings from UTC to local time
+ * @param dto 
+ * @returns 
+ */
 function mapDtoToModel(dto: any): WorkweekConfiguration {
     if (!dto) {
         throw new Error('failed to map to WorkweekConfiguration: ' + dto)
@@ -76,8 +82,8 @@ function mapDtoToModel(dto: any): WorkweekConfiguration {
 
     return {
         day: dto.day,
-        startAt: dto.start_at,
-        endAt: dto.end_at
+        startAt: localTimeStringToUTC(dto.start_at),
+        endAt: localTimeStringToUTC(dto.end_at)
     }
 }
 

@@ -24,11 +24,24 @@ export function timeAtToDate(date: Date, time: string) {
  * Converts the given time string in local time to UTC in the format HH:mm
  * @param time format: HH:mm
  */
- export function timeStringToUTC(time: string) {
+export function localTimeStringToUTC(time: string) {
     const [hr, min] = time.split(':')
     const now = new Date()
     now.setHours(Number(hr))
     now.setMinutes(Number(min))
 
     return `${now.getUTCHours()}:${now.getUTCMinutes()}`
+}
+
+/**
+ * Converts the given time string from UTC to local time
+ * @param time format: HH:mm
+ */
+export function timeStringToLocalTime(time: string) {
+    const [hr, min] = time.split(':')
+    const now = new Date()
+    now.setUTCHours(Number(hr))
+    now.setUTCMinutes(Number(min))
+
+    return `${now.getHours()}:${now.getMinutes()}`
 }
