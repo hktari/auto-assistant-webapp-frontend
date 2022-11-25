@@ -47,7 +47,7 @@ export interface WorkdayConfiguration {
     loginInfoId?: string,
 
     // format: YYY-MM-DD
-    date: string,
+    date: Date,
 
     // format: hh:mm
     startAt: string,

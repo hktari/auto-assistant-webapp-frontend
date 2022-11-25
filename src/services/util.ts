@@ -7,6 +7,16 @@ export function dateToDayOfWeek(date: Date) {
 }
 
 /**
+ * 
+ * @param date 
+ * @returns string in format: YYY-MM-DD
+ */
+export function dateToDateString(date: Date): string {
+    return date.toISOString().substring(0, 10)
+}
+
+
+/**
  * Adds the time given hours and minutes in a time string to the given Date object
  * @param date the date
  * @param time time in the format: HH:mm in localTime
