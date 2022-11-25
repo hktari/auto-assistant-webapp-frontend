@@ -44,16 +44,16 @@ export interface WorkweekConfiguration {
 
 export interface WorkdayConfiguration {
     day?: string,
-    login_info_id?: string,
+    loginInfoId?: string,
 
     // format: YYY-MM-DD
     date: string,
 
     // format: hh:mm
-    start_at: string,
+    startAt: string,
 
     // format: hh:mm
-    end_at: string
+    endAt: string
 }
 
 export enum AutomationAction {

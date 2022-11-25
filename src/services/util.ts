@@ -7,15 +7,15 @@ export function dateToDayOfWeek(date: Date) {
 }
 
 /**
- * 
+ * Adds the time given hours and minutes in a time string to the given Date object
  * @param date the date
- * @param time time in the format: HH:mm
+ * @param time time in the format: HH:mm in localTime
  */
 export function timeAtToDate(date: Date, time: string) {
     const [hours, min] = time.split(':')
     const dateAtTime = new Date(date)
-    dateAtTime.setUTCHours(Number(hours))
-    dateAtTime.setUTCMinutes(Number(min))
+    dateAtTime.setHours(Number(hours))
+    dateAtTime.setMinutes(Number(min))
     return dateAtTime
 }
 
