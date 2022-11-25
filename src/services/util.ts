@@ -21,7 +21,7 @@ export function dateToDateString(date: Date): string {
  * @param date the date
  * @param time time in the format: HH:mm in localTime
  */
-export function timeAtToDate(date: Date, time: string) {
+export function addTimeStringToDate(date: Date, time: string) {
     const [hours, min] = time.split(':')
     const dateAtTime = new Date(date)
     dateAtTime.setHours(Number(hours))
@@ -40,7 +40,7 @@ export function localTimeStringToUTC(time: string) {
     now.setHours(Number(hr))
     now.setMinutes(Number(min))
 
-    return `${now.getUTCHours()}:${now.getUTCMinutes()}`
+    return now.toISOString().substring(11, 16)
 }
 
 /**
@@ -53,5 +53,5 @@ export function timeStringToLocalTime(time: string) {
     now.setUTCHours(Number(hr))
     now.setUTCMinutes(Number(min))
 
-    return `${now.getHours()}:${now.getMinutes()}`
+    return now.toLocaleTimeString().substring(0, 5)
 }
