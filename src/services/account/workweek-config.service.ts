@@ -1,6 +1,6 @@
 import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
-import { dateToDayOfWeek } from '../util'
+import { dateToDayOfWeek, timeStringToUTC } from '../util'
 
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
@@ -14,6 +14,7 @@ async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfigurat
     } catch (error) {
         console.debug('adding workweek configuration. None exists', error)
     }
+
     return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToDto(workweekConfig))
 }
 
@@ -39,6 +40,9 @@ function removeException(accountId: string, workweekExceptionId: string): Promis
 /* --------------------------------- utility -------------------------------- */
 
 /**
+ * Maps the WorkweekConfiguration object to the data transfer object.
+ * Transforms local time strings to UTC
+ * 
  * Output:
  * {
     "days": {
@@ -54,8 +58,8 @@ export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) 
 
     for (const wwc of workweekConfig) {
         tmp.set(wwc.day, {
-            start_at: wwc.startAt,
-            end_at: wwc.endAt
+            start_at: timeStringToUTC(wwc.startAt),
+            end_at: timeStringToUTC(wwc.endAt)
         })
     }
 
