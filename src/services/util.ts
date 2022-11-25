@@ -47,11 +47,15 @@ export function localTimeStringToUTC(time: string) {
  * Converts the given time string from UTC to local time
  * @param time format: HH:mm
  */
-export function timeStringToLocalTime(time: string) {
+export function utcTimeStringToLocalTime(time: string) {
+    console.debug('utc time', time)
+
     const [hr, min] = time.split(':')
     const now = new Date()
     now.setUTCHours(Number(hr))
     now.setUTCMinutes(Number(min))
 
-    return now.toLocaleTimeString().substring(0, 5)
+    console.debug('local time', now.toLocaleTimeString().substring(0, 5))
+
+    return now.toLocaleTimeString().substring(0, 5).replace('.', ':')
 }

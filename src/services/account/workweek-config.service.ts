@@ -1,6 +1,6 @@
 import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
-import { dateToDayOfWeek, localTimeStringToUTC } from '../util'
+import { dateToDayOfWeek, localTimeStringToUTC, utcTimeStringToLocalTime } from '../util'
 
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
@@ -82,8 +82,8 @@ function mapDtoToModel(dto: any): WorkweekConfiguration {
 
     return {
         day: dto.day,
-        startAt: localTimeStringToUTC(dto.start_at),
-        endAt: localTimeStringToUTC(dto.end_at)
+        startAt: utcTimeStringToLocalTime(dto.start_at),
+        endAt: utcTimeStringToLocalTime(dto.end_at)
     }
 }
 

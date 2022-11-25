@@ -1,6 +1,6 @@
 import { WorkdayConfiguration } from '../../interface/common.interface'
 import http from '../http'
-import { dateToDateString, localTimeStringToUTC, timeStringToLocalTime as utcTimeStringToLocalTime } from '../util'
+import { dateToDateString, localTimeStringToUTC, utcTimeStringToLocalTime as utcTimeStringToLocalTime } from '../util'
 
 async function all(accountId: string): Promise<WorkdayConfiguration[]> {
     const dto: Dto[] = await http.get(`/account/${accountId}/workday`)
