@@ -1,6 +1,7 @@
 import { MDBTable, MDBTableHead, MDBTableBody, MDBInput, MDBBtn, MDBSpinner } from 'mdb-react-ui-kit'
 import React, { useEffect, useRef, useState } from 'react'
 import { DayOfWeek, WorkweekConfiguration } from '../../interface/common.interface'
+import { Alert, AlertType, useAlerts } from '../../providers/alert.provider'
 import workweekConfigApi from '../../services/account/workweek-config.service'
 import { compareArraysEqualShallow } from '../../util/arrays.util'
 import WorkweekTableRow from './workweek-table/workweek-table-row.component'
@@ -16,6 +17,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     const [performingUpdate, setPerformingUpdate] = useState(false)
     const originalWorkweekData = useRef<WorkweekConfiguration[]>([])
 
+    const { addAlert } = useAlerts()
 
     // init
     useEffect(() => {
@@ -44,8 +46,12 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
             console.log(`${filteredWorkweekData.length} of ${workweekData.length} valid to send`)
 
             await workweekConfigApi.addOrUpdate(accountId, filteredWorkweekData)
+
+            addAlert(new Alert('Uspešno posodobljeno !', AlertType.success))
+
         } catch (error) {
             console.error('failed to update workweek', error)
+            addAlert(new Alert('Napaka pri posodabljanju !', AlertType.error))
         } finally {
             setPerformingUpdate(false)
         }
@@ -59,6 +65,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
 
             originalWorkweekData.current = response
 
+            console.debug('workweek data', response)
             setWorkweekData(response)
         } catch (error) {
             console.error('failed to fetch workweek data', error)

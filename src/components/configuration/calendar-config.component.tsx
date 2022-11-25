@@ -4,7 +4,7 @@ import moment from 'moment'
 import { useAuth } from '../../providers/auth.provider'
 import workweekConfigApi from '../../services/account/workweek-config.service'
 import workdayApi from '../../services/account/workday.service'
-import { dateToDayOfWeek, timeAtToDate } from '../../services/util'
+import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../services/util'
 import { WorkweekConfiguration } from '../../interface/common.interface'
 import CalendarEditConfigModal from '../calendar-edit-config-modal.component'
 
@@ -83,8 +83,8 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         return {
             allDay: true,
             title: 'test',
-            start: timeAtToDate(date, configForDay.startAt),
-            end: timeAtToDate(date, configForDay.endAt),
+            start: addTimeStringToDate(date, configForDay.startAt),
+            end: addTimeStringToDate(date, configForDay.endAt),
             resource: configForDay
         }
     }
