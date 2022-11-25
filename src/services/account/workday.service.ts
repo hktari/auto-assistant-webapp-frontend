@@ -3,27 +3,42 @@ import http from '../http'
 import { dateToDateString, localTimeStringToUTC, timeStringToLocalTime as utcTimeStringToLocalTime } from '../util'
 
 async function all(accountId: string): Promise<WorkdayConfiguration[]> {
-    const dto : WorkdayConfigurationDto[] = await http.get(`/account/${accountId}/workday`)
+    const dto: Dto[] = await http.get(`/account/${accountId}/workday`)
     return dto.map(d => dtoToModel(d))
 }
 
 function add(accountId: string, workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration[]> {
-    return http.post(`/account/${accountId}/workday`, workdayConfig)
+    const dto = mapToDto(workdayConfig)
+    return http.post(`/account/${accountId}/workday`, dto)
 }
 
-function remove(accountId: string, workdayConfigId: string): Promise<string> {
-    return http.delete(`/account/${accountId}/workday/${workdayConfigId}`)
+function remove(accountId: string, workdayConfig: WorkdayConfiguration): Promise<string> {
+    return http.delete(`/account/${accountId}/workday/${workdayConfig.loginInfoId}`)
 }
 
 /* --------------------------------- utility -------------------------------- */
 
+
+interface Dto {
+    day?: string,
+    login_info_id?: string,
+
+    // format: YYY-MM-DD
+    date: string,
+
+    // format: hh:mm
+    start_at: string,
+
+    // format: hh:mm
+    end_at: string
+}
 
 /**
  * Maps the WorkdayConfiguration object to DTO.
  * Transforms time strings from local time to UTC 
  * @param workdayConfig 
  */
-function mapToDto(workdayConfig: WorkdayConfiguration): WorkdayConfigurationDto {
+function mapToDto(workdayConfig: WorkdayConfiguration): Dto {
     return {
         day: workdayConfig.day,
         login_info_id: workdayConfig.loginInfoId,
@@ -39,27 +54,13 @@ function mapToDto(workdayConfig: WorkdayConfiguration): WorkdayConfigurationDto 
     }
 }
 
-interface WorkdayConfigurationDto {
-    day?: string,
-    login_info_id?: string,
-
-    // format: YYY-MM-DD
-    date: string,
-
-    // format: hh:mm
-    start_at: string,
-
-    // format: hh:mm
-    end_at: string
-}
-
 /**
  * Maps the dto to WorkdayConfiguration object
  * Transforms time strings from UTC to local time
  * @param dto 
  * @returns 
  */
-function dtoToModel(dto: WorkdayConfigurationDto): WorkdayConfiguration {
+function dtoToModel(dto: Dto): WorkdayConfiguration {
     return {
         day: dto.day,
         loginInfoId: dto.login_info_id,
