@@ -25,12 +25,12 @@ describe('workweek-config.service', () => {
         const expectedResult = {
             days: {
                 fri: {
-                    start_at: '12:00',
-                    end_at: '20:00'
+                    start_at: '11:00',
+                    end_at: '19:00'
                 },
                 mon: {
-                    start_at: '12:00',
-                    end_at: '20:00'
+                    start_at: '11:00',
+                    end_at: '19:00'
                 }
             }
         }
