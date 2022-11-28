@@ -99,7 +99,8 @@ export enum AutomationAction {
 }
 
 export interface WorkweekException {
-    id?: string
+    id: string
+    accountId: string
     date: Date
     action: AutomationAction
 }

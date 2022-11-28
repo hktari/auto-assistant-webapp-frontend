@@ -1,3 +1,4 @@
+import { domainToASCII } from 'url'
 import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
 import { addTimeStringToDate, dateToDayOfWeek, localTimeStringToUTC, utcTimeStringToLocalTime } from '../util'
@@ -5,7 +6,7 @@ import { addTimeStringToDate, dateToDayOfWeek, localTimeStringToUTC, utcTimeStri
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
     const responseDto: Dto[] = await http.get(`/account/${accountId}/workweek`)
-    return responseDto.map(dto => mapDtoToModel(accountId, dto))
+    return responseDto.map(dto => mapDtoToWorkweekConfig(accountId, dto))
 }
 
 async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfiguration[]): Promise<string> {
@@ -21,32 +22,34 @@ async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfigurat
 function addExceptionForWorkweek(date: Date, workweekConfig: WorkweekConfiguration): Promise<WorkweekException[]> {
     const expectionPromises: Promise<WorkweekException>[] = []
     expectionPromises.push(addException(workweekConfig.accountId,
-        { date: workweekConfig.getStartDatetime(date), action: AutomationAction.StartBtn }))
+        workweekConfig.getStartDatetime(date), AutomationAction.StartBtn))
 
-    expectionPromises.push(addException(workweekConfig.accountId, {
-        date: workweekConfig.getEndDatetime(date), action: AutomationAction.StopBtn
-    }))
+    expectionPromises.push(addException(workweekConfig.accountId,
+        workweekConfig.getEndDatetime(date), AutomationAction.StopBtn))
 
     return Promise.all(expectionPromises)
 }
 
-
-function addException(accountId: string, { date, action }: WorkweekException): Promise<WorkweekException> {
+async function addException(accountId: string, date: Date, action: AutomationAction): Promise<WorkweekException> {
     // format: YYYY-MM-DD
     const dateFormat = date.toISOString().substring(0, 10)
-    return http.post(`/account/${accountId}/workweek-exception/`, {
+    const resultDto: any = await http.post(`/account/${accountId}/workweek-exception/`, {
         date: dateFormat,
         action,
         day: dateToDayOfWeek(date)
     })
+
+    return mapDtoToWorkweekException(accountId, resultDto)
+
 }
 
-function getExceptions(accountId: string): Promise<WorkweekException[]> {
-    return http.get(`/account/${accountId}/workweek-exception`)
+async function getExceptions(accountId: string): Promise<WorkweekException[]> {
+    const resultDtos: any[] = await http.get(`/account/${accountId}/workweek-exception`)
+    return resultDtos.map(dto => mapDtoToWorkweekException(accountId, dto))
 }
 
-function removeException(accountId: string, workweekExceptionId: string): Promise<string> {
-    return http.delete(`/account/${accountId}/workweek-exception/${workweekExceptionId}`)
+function removeException(workweekException: WorkweekException): Promise<string> {
+    return http.delete(`/account/${workweekException.accountId}/workweek-exception/${workweekException.id}`)
 }
 
 
@@ -97,7 +100,7 @@ interface Dto {
  * @param dto 
  * @returns 
  */
-function mapDtoToModel(accountId: string, dto: Dto): WorkweekConfiguration {
+function mapDtoToWorkweekConfig(accountId: string, dto: Dto): WorkweekConfiguration {
     if (!dto) {
         throw new Error('failed to map to WorkweekConfiguration: ' + dto)
     }
@@ -105,11 +108,20 @@ function mapDtoToModel(accountId: string, dto: Dto): WorkweekConfiguration {
     return new WorkweekConfiguration(accountId, dto.day, dto.start_at, dto.end_at)
 }
 
+function mapDtoToWorkweekException(accountId: string, dto: any): WorkweekException {
+    return {
+        id: dto.id,
+        accountId,
+        action: dto.action,
+        date: dto.date,
+    }
+}
+
 const workweekConfigApi = {
     get,
     addOrUpdate,
     getExceptions,
-    addException,
+    addExceptionForWorkweek,
     removeException
 }
 
