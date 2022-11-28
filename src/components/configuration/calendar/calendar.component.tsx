@@ -82,13 +82,21 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         console.debug('saving event', updated)
 
         try {
-            const newEvent = await workdayApi.add(eventToWorkdayConfig(user?.id!, updated))
-            setEvents([...events,   workdayConfigToEvent(newEvent)])
+            const newWorkday = await workdayApi.addOrUpdate(eventToWorkdayConfig(user?.id!, updated))
+            const newEvent = workdayConfigToEvent(newWorkday)
+
+            const eventsUpdate = [...events]
+            if (original) {
+                eventsUpdate.splice(eventsUpdate.indexOf(original), 1, newEvent)
+            } else {
+                eventsUpdate.push(newEvent)
+            }
+
+            setEvents(eventsUpdate)
             addAlert(new Alert('Uspešno posodobljeno', AlertType.success))
         } catch (error) {
             console.error(error)
             addAlert(new Alert('Napaka pri dodajanju', AlertType.error))
-
         }
     }
 
