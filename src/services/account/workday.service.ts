@@ -4,22 +4,23 @@ import { dateToDateString, localTimeStringToUTC, utcTimeStringToLocalTime as utc
 
 async function all(accountId: string): Promise<WorkdayConfiguration[]> {
     const dto: Dto[] = await http.get(`/account/${accountId}/workday`)
-    return dto.map(d => dtoToModel(d))
+    return dto.map(d => dtoToModel(accountId, d))
 }
 
-function add(accountId: string, workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration[]> {
+function add(workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration[]> {
     const dto = mapToDto(workdayConfig)
-    return http.post(`/account/${accountId}/workday`, dto)
+    return http.post(`/account/${workdayConfig.accountId}/workday`, dto)
 }
 
-function remove(accountId: string, workdayConfig: WorkdayConfiguration): Promise<string> {
-    return http.delete(`/account/${accountId}/workday/${workdayConfig.loginInfoId}`)
+function remove(workdayConfig: WorkdayConfiguration): Promise<string> {
+    return http.delete(`/account/${workdayConfig.accountId}/workday/${workdayConfig.id}`)
 }
 
 /* --------------------------------- utility -------------------------------- */
 
 
 interface Dto {
+    id?: string
     day?: string,
     login_info_id?: string,
 
@@ -40,6 +41,7 @@ interface Dto {
  */
 function mapToDto(workdayConfig: WorkdayConfiguration): Dto {
     return {
+        id: workdayConfig.id,
         day: workdayConfig.day,
         login_info_id: workdayConfig.loginInfoId,
 
@@ -60,9 +62,11 @@ function mapToDto(workdayConfig: WorkdayConfiguration): Dto {
  * @param dto 
  * @returns 
  */
-function dtoToModel(dto: Dto): WorkdayConfiguration {
+function dtoToModel(accountId: string, dto: Dto): WorkdayConfiguration {
     return {
+        id: dto.id,
         day: dto.day,
+        accountId,
         loginInfoId: dto.login_info_id,
         date: new Date(dto.date),
         startAt: utcTimeStringToLocalTime(dto.start_at),

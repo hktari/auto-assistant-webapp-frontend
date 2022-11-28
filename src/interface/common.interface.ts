@@ -43,8 +43,10 @@ export interface WorkweekConfiguration {
 }
 
 export interface WorkdayConfiguration {
-    day?: string,
+    id?: string
+    day?: string
     loginInfoId?: string,
+    accountId: string,
 
     // format: YYY-MM-DD
     date: Date,
