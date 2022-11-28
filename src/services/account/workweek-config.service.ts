@@ -1,11 +1,11 @@
 import { AutomationAction, WorkweekConfiguration, WorkweekException } from '../../interface/common.interface'
 import http from '../http'
-import { dateToDayOfWeek, localTimeStringToUTC, utcTimeStringToLocalTime } from '../util'
+import { addTimeStringToDate, dateToDayOfWeek, localTimeStringToUTC, utcTimeStringToLocalTime } from '../util'
 
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
-    const responseDto: any[] = await http.get(`/account/${accountId}/workweek`)
-    return responseDto.map(dto => mapDtoToModel(dto))
+    const responseDto: Dto[] = await http.get(`/account/${accountId}/workweek`)
+    return responseDto.map(dto => mapDtoToModel(accountId, dto))
 }
 
 async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfiguration[]): Promise<string> {
@@ -17,6 +17,19 @@ async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfigurat
 
     return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToDto(workweekConfig))
 }
+
+function addExceptionForWorkweek(date: Date, workweekConfig: WorkweekConfiguration): Promise<WorkweekException[]> {
+    const expectionPromises: Promise<WorkweekException>[] = []
+    expectionPromises.push(addException(workweekConfig.accountId,
+        { date: workweekConfig.getStartDatetime(date), action: AutomationAction.StartBtn }))
+
+    expectionPromises.push(addException(workweekConfig.accountId, {
+        date: workweekConfig.getEndDatetime(date), action: AutomationAction.StopBtn
+    }))
+
+    return Promise.all(expectionPromises)
+}
+
 
 function addException(accountId: string, { date, action }: WorkweekException): Promise<WorkweekException> {
     // format: YYYY-MM-DD
@@ -68,6 +81,15 @@ export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) 
     }
 }
 
+interface Dto {
+    day: string
+
+    // format: hh:mm
+    start_at: string
+
+    // format: hh:mm
+    end_at: string
+}
 
 /**
  * Maps the DTO to WorkweekConfiguration object.
@@ -75,16 +97,12 @@ export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) 
  * @param dto 
  * @returns 
  */
-function mapDtoToModel(dto: any): WorkweekConfiguration {
+function mapDtoToModel(accountId: string, dto: Dto): WorkweekConfiguration {
     if (!dto) {
         throw new Error('failed to map to WorkweekConfiguration: ' + dto)
     }
 
-    return {
-        day: dto.day,
-        startAt: utcTimeStringToLocalTime(dto.start_at),
-        endAt: utcTimeStringToLocalTime(dto.end_at)
-    }
+    return new WorkweekConfiguration(accountId, dto.day, dto.start_at, dto.end_at)
 }
 
 const workweekConfigApi = {

@@ -28,6 +28,7 @@ export function dateToTimeString(date: Date): string {
  * Adds the time given hours and minutes in a time string to the given Date object
  * @param date the date
  * @param time time in the format: HH:mm in localTime
+ * @returns a new Date object with the given time and date
  */
 export function addTimeStringToDate(date: Date, time: string) {
     const [hours, min] = time.split(':')

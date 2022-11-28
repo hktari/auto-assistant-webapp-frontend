@@ -1,3 +1,5 @@
+import { addTimeStringToDate, utcTimeStringToLocalTime } from "../services/util"
+
 export interface JWT {
     token: string
 }
@@ -32,7 +34,9 @@ export interface LogEntry {
 
 export type DayOfWeek = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
 
-export interface WorkweekConfiguration {
+export class WorkweekConfiguration {
+    accountId: string
+
     day: DayOfWeek
 
     // format: hh:mm
@@ -40,6 +44,36 @@ export interface WorkweekConfiguration {
 
     // format: hh:mm
     endAt: string
+
+    /**
+     *
+     */
+    constructor(accountId: string, day: string, startAt: string, endAt: string) {
+        this.accountId = accountId
+        this.day = day as DayOfWeek
+        this.startAt = utcTimeStringToLocalTime(startAt)
+        this.endAt = utcTimeStringToLocalTime(endAt)
+    }
+
+    getStartDatetime(date: Date) {
+        return addTimeStringToDate(date, this.startAt)
+    }
+
+    getEndDatetime(date: Date) {
+        const startDate = addTimeStringToDate(date, this.startAt)
+        const endDate = addTimeStringToDate(date, this.endAt)
+
+        // special handling for when endAt < startAt
+        // e.g. 22:00 - 06:00
+        if (endDate.getTime() < startDate.getTime()) {
+            const dayAfter = new Date(date)
+            dayAfter.setDate(date.getDate() + 1)
+
+            return addTimeStringToDate(dayAfter, this.endAt)
+        } else {
+            return endDate
+        }
+    }
 }
 
 export interface WorkdayConfiguration {
@@ -64,7 +98,7 @@ export enum AutomationAction {
 
 }
 
-export interface WorkweekException{
+export interface WorkweekException {
     id?: string
     date: Date
     action: AutomationAction
