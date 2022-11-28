@@ -31,6 +31,15 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
     const handleSelectSlot = useCallback(
         ({ start, end }: SlotInfo) => {
+            // handle the case when user doesn't select a time span
+            // prevent UTC time from representing the day before the one selected 
+            // set default values, the way the user will probably use the calendar
+            if (start.getHours() === 0) {
+                start.setHours(8)
+                end.setTime(start.getTime())
+                end.setHours(start.getHours() + 8)
+            }
+
             setEditEvent({ start, end })
         },
         [setEvents]

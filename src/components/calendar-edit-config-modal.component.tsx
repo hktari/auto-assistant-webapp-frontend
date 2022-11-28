@@ -25,11 +25,23 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
         if (event) {
             setShowModal(true)
 
+            let startDatetime = event.start
+            if (!startDatetime) {
+                startDatetime = new Date()
+                startDatetime.setHours(8)
+            }
+
+            let endDatetime = event.end
+            if (!endDatetime) {
+                endDatetime = new Date(startDatetime)
+                endDatetime.setHours(startDatetime.getHours() + 8)
+            }
+
             // iso format is: YYYY-MM-DDTHH:mm
-            setStartAtDate(event.start?.toISOString()?.substring(0, 10)!)
-            setEndAtDate(event.end?.toISOString()?.substring(0, 10)!)
-            setStartAtTime(event.start?.toTimeString()?.substring(0, 5)!)
-            setEndAtTime(event.end?.toTimeString()?.substring(0, 5)!)
+            setStartAtDate(startDatetime.toISOString()?.substring(0, 10)!)
+            setEndAtDate(endDatetime.toISOString()?.substring(0, 10)!)
+            setStartAtTime(startDatetime.toTimeString()?.substring(0, 5)!)
+            setEndAtTime(endDatetime.toTimeString()?.substring(0, 5)!)
 
             setCanRemove(true)
         }
