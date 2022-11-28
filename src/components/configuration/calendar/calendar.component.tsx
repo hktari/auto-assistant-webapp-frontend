@@ -51,6 +51,8 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
         console.debug('calendar', 'fetching workweek exceptions...')
         const workweekExceptions = await workweekConfigApi.getExceptions(user?.id!)
+        console.debug('calendar', `got ${workweekExceptions.length}`)
+        console.debug('calendar', workweekExceptions)
 
         console.debug('calendar', 'fetching workday configs...')
         const workdayConfigs = await workdayApi.all(user?.id!)
@@ -58,7 +60,6 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
         /* -------------------------------- workweek -------------------------------- */
         // create events based on workweek for the next three months
-        const workweekEvents = []
         const targetDate = new Date()
         targetDate.setMonth(targetDate.getMonth() + 3)
 
@@ -68,7 +69,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
             // an event is added if a weekly config exists and the curDate is not present inside workweekExceptions array
             const workweekEvent = workweekConfigToEvent(curDate, workweekConfig)
             if (workweekEvent && !existsWorkweekException(curDate, workweekExceptions)) {
-                workweekEvents.push(workweekEvent)
+                events.push(workweekEvent)
             }
 
             curDate.setDate(curDate.getDate() + 1)
