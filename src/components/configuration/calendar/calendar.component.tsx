@@ -107,7 +107,12 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
             const eventsUpdate = [...events]
             if (original) {
-                eventsUpdate.splice(eventsUpdate.indexOf(original), 1, newEvent)
+                const originalIdx = eventsUpdate.indexOf(original)
+                if (originalIdx !== -1) {
+                    eventsUpdate.splice(originalIdx, 1)
+                }
+                
+                eventsUpdate.push(newEvent)
             } else {
                 eventsUpdate.push(newEvent)
             }
