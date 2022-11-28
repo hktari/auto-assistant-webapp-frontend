@@ -21,7 +21,7 @@ export function dateToDateString(date: Date): string {
 * @returns string in format: HH:mm in local time 
  */
 export function dateToTimeString(date: Date): string {
-    return date.toLocaleTimeString().substring(0, 5).replace('.', ':')
+    return date.toTimeString().substring(0, 5).replace('.', ':')
 }
 
 /**
@@ -57,14 +57,10 @@ export function localTimeStringToUTC(time: string) {
  * @param time format: HH:mm
  */
 export function utcTimeStringToLocalTime(time: string) {
-    console.debug('utc time', time)
-
     const [hr, min] = time.split(':')
     const now = new Date()
     now.setUTCHours(Number(hr))
     now.setUTCMinutes(Number(min))
 
-    console.debug('local time', now.toLocaleTimeString().substring(0, 5))
-
-    return now.toLocaleTimeString().substring(0, 5).replace('.', ':')
+    return now.toTimeString().substring(0, 5).replace('.', ':')
 }
