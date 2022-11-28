@@ -79,7 +79,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
     const [editEvent, setEditEvent] = useState<Event | undefined>()
 
-    function onSaveEvent(updated: Event, original: Event) {
+    function onSaveEvent(updated: Event, original?: Event) {
         console.debug('saving event', updated)
     }
 

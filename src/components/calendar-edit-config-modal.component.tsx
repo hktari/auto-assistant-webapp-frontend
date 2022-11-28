@@ -4,15 +4,19 @@ import { Event } from 'react-big-calendar'
 
 type CalendarEditConfigModalProps = {
     event?: Event
-    onSave: (updated: Event, original: Event) => void
+    onSave: (updated: Event, original?: Event) => void,
+    onRemove?: (original: Event) => void
 }
 
-const CalendarEditConfigModal = ({ event, onSave }: CalendarEditConfigModalProps) => {
+const CalendarEditConfigModal = ({ event, onSave, onRemove }: CalendarEditConfigModalProps) => {
     const [startAtDate, setStartAtDate] = useState<string>(new Date().toISOString().substring(0, 10))
     const [startAtTime, setStartAtTime] = useState<string>('')
     const [endAtDate, setEndAtDate] = useState<string>(new Date().toISOString().substring(0, 10))
     const [endAtTime, setEndAtTime] = useState<string>('')
     const [showModal, setShowModal] = useState(false);
+
+    // canRemove is true is an event was passed
+    const [canRemove, setCanRemove] = useState(false)
 
     const toggleShow = () => setShowModal(!showModal);
 
@@ -25,9 +29,12 @@ const CalendarEditConfigModal = ({ event, onSave }: CalendarEditConfigModalProps
             setEndAtDate(event.end?.toISOString()?.substring(0, 10)!)
             setStartAtTime(event.start?.toTimeString()?.substring(0, 5)!)
             setEndAtTime(event.end?.toTimeString()?.substring(0, 5)!)
+
+            setCanRemove(true)
         }
         else {
             setShowModal(false)
+            setCanRemove(false)
         }
     }, [event])
 
@@ -39,6 +46,25 @@ const CalendarEditConfigModal = ({ event, onSave }: CalendarEditConfigModalProps
      */
     function joinToDate(date: string, time: string) {
         return new Date(`${date}T${time}`)
+    }
+
+    function removeButtonHandler() {
+        if (event) {
+            if (!onRemove) {
+                throw new Error('Event reference is given. OnRemove handler not given.')
+            }
+
+            onRemove(event)
+        }
+    }
+
+    function saveButtonHandler() {
+        onSave({
+            ...event,
+            start: joinToDate(startAtDate, startAtTime),
+            end: joinToDate(endAtDate, endAtTime)
+        }, event)
+        toggleShow()
     }
 
     return (
@@ -95,21 +121,19 @@ const CalendarEditConfigModal = ({ event, onSave }: CalendarEditConfigModalProps
                     </MDBModalBody>
 
                     <MDBModalFooter>
+                        <div className="flex-fill" hidden={!canRemove}>
+                            <MDBBtn color='danger' onClick={removeButtonHandler}>
+                                Odstrani
+                            </MDBBtn>
+                        </div>
                         <MDBBtn color='secondary' onClick={toggleShow}>
                             Close
                         </MDBBtn>
-                        <MDBBtn onClick={() => {
-                            onSave({
-                                ...event,
-                                start: joinToDate(startAtDate, startAtTime),
-                                end: joinToDate(endAtDate, endAtTime)
-                            }, event!)
-                            toggleShow()
-                        }}>Save changes</MDBBtn>
+                        <MDBBtn onClick={saveButtonHandler}>Save changes</MDBBtn>
                     </MDBModalFooter>
                 </MDBModalContent>
             </MDBModalDialog>
-        </MDBModal>
+        </MDBModal >
     )
 }
 
