@@ -37,9 +37,11 @@ export function eventToWorkdayConfig(accountId: string, event: Event): WorkdayCo
         throw new Error('Required: event.start and event.end')
     }
 
+    const metadata = event.resource as EventMetadata
+
     return {
         accountId,
-        id: event.resource?.id,
+        id: metadata?.id,
         date: event.start,
         startAt: dateToTimeString(event.start),
         endAt: dateToTimeString(event.end)
