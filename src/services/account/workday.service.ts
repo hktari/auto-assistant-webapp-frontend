@@ -7,7 +7,7 @@ async function all(accountId: string): Promise<WorkdayConfiguration[]> {
     return dto.map(d => dtoToModel(accountId, d))
 }
 
-function add(workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration[]> {
+function add(workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration> {
     const dto = mapToDto(workdayConfig)
     return http.post(`/account/${workdayConfig.accountId}/workday`, dto)
 }

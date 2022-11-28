@@ -7,7 +7,8 @@ import workdayApi from '../../../services/account/workday.service'
 import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../../services/util'
 import { WorkweekConfiguration } from '../../../interface/common.interface'
 import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
-import { workweekConfigToEvent } from './calendar.util'
+import { eventToWorkdayConfig, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
+import { Alert, AlertType, useAlerts } from '../../../providers/alert.provider'
 
 type CalendarConfigProps = {
 }
@@ -22,6 +23,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
     ])
 
     const { user } = useAuth()
+    const { addAlert } = useAlerts()
 
     useEffect(() => {
         fetchEvents()
@@ -29,10 +31,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
     const handleSelectSlot = useCallback(
         ({ start, end }: SlotInfo) => {
-            const title = window.prompt('New Event name')
-            if (title) {
-                setEvents((prev) => [...prev, { start, end, title }])
-            }
+            setEditEvent({ start, end })
         },
         [setEvents]
     )
@@ -79,8 +78,22 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
     const [editEvent, setEditEvent] = useState<Event | undefined>()
 
-    function onSaveEvent(updated: Event, original?: Event) {
+    async function onSaveEvent(updated: Event, original?: Event) {
         console.debug('saving event', updated)
+
+        try {
+            const newEvent = await workdayApi.add(eventToWorkdayConfig(user?.id!, updated))
+            setEvents([...events,   workdayConfigToEvent(newEvent)])
+            addAlert(new Alert('Uspešno posodobljeno', AlertType.success))
+        } catch (error) {
+            console.error(error)
+            addAlert(new Alert('Napaka pri dodajanju', AlertType.error))
+
+        }
+    }
+
+    function onRemoveEvent(event: Event) {
+        console.debug('event', 'remove')
     }
 
     return (
@@ -95,7 +108,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
                 onSelectEvent={handleSelectEvent}
                 onSelectSlot={handleSelectSlot}
             />
-            <CalendarEditConfigModal event={editEvent} onSave={onSaveEvent} />
+            <CalendarEditConfigModal event={editEvent} onSave={onSaveEvent} onRemove={onRemoveEvent} />
         </div>
     )
 }
