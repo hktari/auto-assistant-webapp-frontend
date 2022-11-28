@@ -1,4 +1,4 @@
-import { WorkdayConfiguration, WorkweekConfiguration } from "../../../interface/common.interface"
+import { WorkdayConfiguration, WorkweekConfiguration, WorkweekException } from "../../../interface/common.interface"
 import { dateToDayOfWeek, addTimeStringToDate, dateToDateString, dateToTimeString } from "../../../services/util"
 
 import { Calendar, momentLocalizer, Event, SlotInfo } from 'react-big-calendar'
@@ -9,11 +9,19 @@ export function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[
         return null
     }
 
-    return resourceToEvent(date, configForDay.startAt, configForDay.endAt, configForDay, EventType.weeklyConfig)
+    return resourceToEvent(date, configForDay.startAt, configForDay.endAt,
+        { type: EventType.weeklyConfig, object: configForDay })
+}
+export function eventToWorkweekConfig(event: Event): WorkweekConfiguration {
+    if (!event.resource?.object) {
+        throw new Error('Required: event.resource.object. The event object was propably not created via workweekConfigToEvent()')
+    }
+    return event.resource.object as WorkweekConfiguration
 }
 
 export function workdayConfigToEvent(workdayConfig: WorkdayConfiguration): Event {
-    return resourceToEvent(workdayConfig.date, workdayConfig.startAt, workdayConfig.endAt, workdayConfig, EventType.dailyConfig)
+    return resourceToEvent(workdayConfig.date, workdayConfig.startAt, workdayConfig.endAt,
+        { id: workdayConfig.id, type: EventType.dailyConfig, object: workdayConfig })
 }
 
 export function eventToWorkdayConfig(accountId: string, event: Event): WorkdayConfiguration {
@@ -36,7 +44,13 @@ export enum EventType {
     weeklyConfig,
 }
 
-function resourceToEvent(date: Date, startAt: string, endAt: string, resource: any, type: EventType): Event {
+export interface EventMetadata {
+    id?: string,
+    type: EventType,
+    object: any
+}
+
+function resourceToEvent(date: Date, startAt: string, endAt: string, metadata: EventMetadata): Event {
     const startDate = addTimeStringToDate(date, startAt)
     const endDate = addTimeStringToDate(date, endAt)
 
@@ -48,9 +62,9 @@ function resourceToEvent(date: Date, startAt: string, endAt: string, resource: a
 
     return {
         allDay: false,
-        title: type === EventType.weeklyConfig ? 'week' : 'daily',
+        title: metadata.type === EventType.weeklyConfig ? 'week' : 'daily',
         start: startDate,
         end: endDate,
-        resource
+        resource: metadata
     }
 }

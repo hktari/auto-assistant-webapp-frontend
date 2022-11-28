@@ -7,7 +7,7 @@ import workdayApi from '../../../services/account/workday.service'
 import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../../services/util'
 import { WorkweekConfiguration } from '../../../interface/common.interface'
 import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
-import { eventToWorkdayConfig, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
+import { EventMetadata, eventToWorkdayConfig, eventToWorkweekConfig, EventType, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
 import { Alert, AlertType, useAlerts } from '../../../providers/alert.provider'
 
 type CalendarConfigProps = {
@@ -111,9 +111,14 @@ const CalendarConfig = (props: CalendarConfigProps) => {
     async function onRemoveEvent(eventToRemove: Event) {
         console.debug('event', 'remove')
 
-        // todo: if eventToRemove.resource === WorkweekConfiguration add exception, else remove WorkdayConfiguration
         try {
-            await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
+            // todo: if eventToRemove.resource === WorkweekConfiguration add exception, else remove WorkdayConfiguration
+            const { id, type } = eventToRemove.resource as EventMetadata
+            if (type === EventType.dailyConfig) {
+                await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
+            } else if (type === EventType.weeklyConfig) {
+                await workweekConfigApi.addExceptionForWorkweek(eventToRemove.start!, eventToWorkweekConfig(eventToRemove))
+            }
 
             const eventsUpdate = [...events]
             eventsUpdate.splice(eventsUpdate.indexOf(eventToRemove), 1)

@@ -6,9 +6,10 @@ type CalendarEditConfigModalProps = {
     event?: Event
     onSave: (updated: Event, original?: Event) => void,
     onRemove?: (original: Event) => void
+    onHide?: () => void
 }
 
-const CalendarEditConfigModal = ({ event, onSave, onRemove }: CalendarEditConfigModalProps) => {
+const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEditConfigModalProps) => {
     const [startAtDate, setStartAtDate] = useState<string>(new Date().toISOString().substring(0, 10))
     const [startAtTime, setStartAtTime] = useState<string>('')
     const [endAtDate, setEndAtDate] = useState<string>(new Date().toISOString().substring(0, 10))
@@ -68,7 +69,7 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove }: CalendarEditConfig
     }
 
     return (
-        <MDBModal show={showModal} setShow={setShowModal} tabIndex='-1'>
+        <MDBModal show={showModal} setShow={setShowModal} tabIndex='-1' >
             <MDBModalDialog centered>
                 <MDBModalContent>
                     <MDBModalHeader>
