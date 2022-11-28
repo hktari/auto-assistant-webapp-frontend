@@ -100,8 +100,21 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         }
     }
 
-    function onRemoveEvent(event: Event) {
+    async function onRemoveEvent(eventToRemove: Event) {
         console.debug('event', 'remove')
+
+        try {
+            await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
+
+            const eventsUpdate = [...events]
+            eventsUpdate.splice(eventsUpdate.indexOf(eventToRemove), 1)
+            setEvents(eventsUpdate)
+            
+            addAlert(new Alert('Uspešno izbrisano', AlertType.success))
+        } catch (error) {
+            console.error(error)
+            addAlert(new Alert('Napaka pri brisanju', AlertType.error))
+        }
     }
 
     return (
