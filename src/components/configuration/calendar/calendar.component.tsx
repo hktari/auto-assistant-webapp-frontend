@@ -44,15 +44,19 @@ const CalendarConfig = (props: CalendarConfigProps) => {
     )
 
     async function fetchEvents() {
-        const events: Event[] = []
+        let events: Event[] = []
 
-        console.debug('fetching workweek...')
+        console.debug('calendar', 'fetching workweek...')
         const workweekConfig = await workweekConfigApi.get(user?.id!)
-        console.debug('fetching workweek exceptions...')
-        const workweekExceptions = await workweekConfigApi.getExceptions(user?.id!)
-        console.debug('fetching workday configs...')
-        const dailyConfigs = await workdayApi.all(user?.id!)
 
+        console.debug('calendar', 'fetching workweek exceptions...')
+        const workweekExceptions = await workweekConfigApi.getExceptions(user?.id!)
+
+        console.debug('calendar', 'fetching workday configs...')
+        const workdayConfigs = await workdayApi.all(user?.id!)
+        console.debug('calendar', `got ${workdayConfigs.length}`)
+
+        /* -------------------------------- workweek -------------------------------- */
         // create events based on workweek for the next three months
         const targetDate = new Date()
         targetDate.setMonth(targetDate.getMonth() + 3)
@@ -60,14 +64,18 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         let curDate = new Date()
         while (curDate < targetDate) {
 
-            const event = workweekConfigToEvent(curDate, workweekConfig)
-            if (event) {
-                events.push(event)
+            const workweekEvent = workweekConfigToEvent(curDate, workweekConfig)
+            if (workweekEvent) {
+                events.push(workweekEvent)
             }
+
             curDate.setDate(curDate.getDate() + 1)
         }
 
-
+        /* -------------------------------- workdays -------------------------------- */
+        const workdayEvents = workdayConfigs.map(workdayConfig => workdayConfigToEvent(workdayConfig))
+        events = events.concat(workdayEvents)
+        
 
         setEvents(events)
         console.debug('done !')
@@ -103,13 +111,14 @@ const CalendarConfig = (props: CalendarConfigProps) => {
     async function onRemoveEvent(eventToRemove: Event) {
         console.debug('event', 'remove')
 
+        // todo: if eventToRemove.resource === WorkweekConfiguration add exception, else remove WorkdayConfiguration
         try {
             await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
 
             const eventsUpdate = [...events]
             eventsUpdate.splice(eventsUpdate.indexOf(eventToRemove), 1)
             setEvents(eventsUpdate)
-            
+
             addAlert(new Alert('Uspešno izbrisano', AlertType.success))
         } catch (error) {
             console.error(error)

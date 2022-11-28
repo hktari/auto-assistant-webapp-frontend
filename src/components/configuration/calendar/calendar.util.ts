@@ -9,11 +9,11 @@ export function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[
         return null
     }
 
-    return resourceToEvent(date, configForDay.startAt, configForDay.endAt, configForDay)
+    return resourceToEvent(date, configForDay.startAt, configForDay.endAt, configForDay, EventType.weeklyConfig)
 }
 
 export function workdayConfigToEvent(workdayConfig: WorkdayConfiguration): Event {
-    return resourceToEvent(workdayConfig.date, workdayConfig.startAt, workdayConfig.endAt, workdayConfig)
+    return resourceToEvent(workdayConfig.date, workdayConfig.startAt, workdayConfig.endAt, workdayConfig, EventType.dailyConfig)
 }
 
 export function eventToWorkdayConfig(accountId: string, event: Event): WorkdayConfiguration {
@@ -29,7 +29,13 @@ export function eventToWorkdayConfig(accountId: string, event: Event): WorkdayCo
     }
 }
 
-function resourceToEvent(date: Date, startAt: string, endAt: string, resource: any): Event {
+export enum EventType {
+    unknown,
+    dailyConfig,
+    weeklyConfig,
+}
+
+function resourceToEvent(date: Date, startAt: string, endAt: string, resource: any, type: EventType): Event {
     const startDate = addTimeStringToDate(date, startAt)
     const endDate = addTimeStringToDate(date, endAt)
 
@@ -41,7 +47,7 @@ function resourceToEvent(date: Date, startAt: string, endAt: string, resource: a
 
     return {
         allDay: false,
-        title: 'week',
+        title: type === EventType.weeklyConfig ? 'week' : 'daily',
         start: startDate,
         end: endDate,
         resource
