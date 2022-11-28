@@ -101,6 +101,8 @@ const CalendarConfig = (props: CalendarConfigProps) => {
     async function onSaveEvent(updated: Event, original?: Event) {
         console.debug('saving event', updated)
 
+        // todo: if original.resource.object === WorkweekConfiguration, then an exception has to be added
+        // otherwise the runner will not prefer the daily config over the weekly, and will try to execute both
         try {
             const newWorkday = await workdayApi.addOrUpdate(eventToWorkdayConfig(user?.id!, updated))
             const newEvent = workdayConfigToEvent(newWorkday)
@@ -111,7 +113,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
                 if (originalIdx !== -1) {
                     eventsUpdate.splice(originalIdx, 1)
                 }
-                
+
                 eventsUpdate.push(newEvent)
             } else {
                 eventsUpdate.push(newEvent)

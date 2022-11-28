@@ -68,6 +68,7 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
             }
 
             onRemove(event)
+            toggleShow()
         }
     }
 
