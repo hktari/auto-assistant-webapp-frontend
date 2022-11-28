@@ -8,16 +8,18 @@ import { mapWorkweekConfigToDto } from './workweek-config.service'
 describe('workweek-config.service', () => {
     test('mapWorkweekConfigToPayload to have correct format', () => {
         const sample: WorkweekConfiguration[] = [
-            {
-                day: 'fri',
-                startAt: '12:00',
-                endAt: '20:00'
-            },
-            {
-                day: 'mon',
-                startAt: '12:00',
-                endAt: '20:00'
-            }
+            new WorkweekConfiguration(
+                '1',
+                'fri',
+                '12:00',
+                '20:00'
+            ),
+            new WorkweekConfiguration(
+                '1',
+                'mon',
+                '12:00',
+                '20:00'
+            )
         ]
 
         const expectedResult = {

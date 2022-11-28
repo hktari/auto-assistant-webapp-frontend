@@ -55,6 +55,16 @@ function removeException(workweekException: WorkweekException): Promise<string> 
 
 /* --------------------------------- utility -------------------------------- */
 
+interface Dto {
+    day: string
+
+    // format: hh:mm
+    start_at: string
+
+    // format: hh:mm
+    end_at: string
+}
+
 /**
  * Maps the WorkweekConfiguration object to the data transfer object.
  * Transforms local time strings to UTC
@@ -84,15 +94,6 @@ export function mapWorkweekConfigToDto(workweekConfig: WorkweekConfiguration[]) 
     }
 }
 
-interface Dto {
-    day: string
-
-    // format: hh:mm
-    start_at: string
-
-    // format: hh:mm
-    end_at: string
-}
 
 /**
  * Maps the DTO to WorkweekConfiguration object.
@@ -105,7 +106,7 @@ function mapDtoToWorkweekConfig(accountId: string, dto: Dto): WorkweekConfigurat
         throw new Error('failed to map to WorkweekConfiguration: ' + dto)
     }
 
-    return new WorkweekConfiguration(accountId, dto.day, dto.start_at, dto.end_at)
+    return new WorkweekConfiguration(accountId, dto.day, utcTimeStringToLocalTime(dto.start_at), utcTimeStringToLocalTime(dto.end_at))
 }
 
 function mapDtoToWorkweekException(accountId: string, dto: any): WorkweekException {

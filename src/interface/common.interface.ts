@@ -48,11 +48,16 @@ export class WorkweekConfiguration {
     /**
      *
      */
-    constructor(accountId: string, day: string, startAt: string, endAt: string) {
+    constructor(accountId: string, day: string, startAt?: string, endAt?: string) {
         this.accountId = accountId
         this.day = day as DayOfWeek
-        this.startAt = utcTimeStringToLocalTime(startAt)
-        this.endAt = utcTimeStringToLocalTime(endAt)
+        this.startAt = startAt ?? ''
+        this.endAt = endAt ?? ''
+    }
+
+
+    clone() {
+        return new WorkweekConfiguration(this.accountId, this.day, this.startAt, this.endAt)
     }
 
     getStartDatetime(date: Date) {

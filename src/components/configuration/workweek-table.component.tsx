@@ -2,6 +2,7 @@ import { MDBTable, MDBTableHead, MDBTableBody, MDBInput, MDBBtn, MDBSpinner } fr
 import React, { useEffect, useRef, useState } from 'react'
 import { DayOfWeek, WorkweekConfiguration } from '../../interface/common.interface'
 import { Alert, AlertType, useAlerts } from '../../providers/alert.provider'
+import { useAuth } from '../../providers/auth.provider'
 import workweekConfigApi from '../../services/account/workweek-config.service'
 import { compareArraysEqualShallow } from '../../util/arrays.util'
 import WorkweekTableRow from './workweek-table/workweek-table-row.component'
@@ -18,6 +19,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     const originalWorkweekData = useRef<WorkweekConfiguration[]>([])
 
     const { addAlert } = useAlerts()
+    const { user } = useAuth()
 
     // init
     useEffect(() => {
@@ -60,12 +62,13 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
     async function fetchWorkweekData() {
         try {
             const response = await workweekConfigApi.get(accountId)
+            console.debug('workweek data', 'got', response)
 
             addMissingDays(response)
 
             originalWorkweekData.current = response
 
-            console.debug('workweek data', response)
+            console.debug('workweek data', 'add missing', response)
             setWorkweekData(response)
         } catch (error) {
             console.error('failed to fetch workweek data', error)
@@ -82,11 +85,9 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
             throw new Error('failed to find work week data row for ' + day)
         }
 
-        const updatedRow = {
-            ...workweekData[rowToUpdateIdx],
-            startAt,
-            endAt
-        }
+        const updatedRow = workweekData[rowToUpdateIdx].clone()
+        updatedRow.startAt = startAt
+        updatedRow.endAt = endAt
 
         tmp.splice(rowToUpdateIdx, 1, updatedRow)
         setWorkweekData(tmp)
@@ -99,11 +100,7 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
         const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
         for (const day of daysOfWeek) {
             if (!workweek.some(wwc => wwc.day === day)) {
-                const missingWorkweekConfig: WorkweekConfiguration = {
-                    day: day as DayOfWeek,
-                    startAt: '',
-                    endAt: ''
-                }
+                const missingWorkweekConfig = new WorkweekConfiguration(user?.id!, day)
                 workweek.splice(daysOfWeek.indexOf(day), 0, missingWorkweekConfig)
             }
         }
