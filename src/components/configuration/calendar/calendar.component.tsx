@@ -75,7 +75,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         /* -------------------------------- workdays -------------------------------- */
         const workdayEvents = workdayConfigs.map(workdayConfig => workdayConfigToEvent(workdayConfig))
         events = events.concat(workdayEvents)
-        
+
 
         setEvents(events)
         console.debug('done !')

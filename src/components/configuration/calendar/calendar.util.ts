@@ -23,6 +23,7 @@ export function eventToWorkdayConfig(accountId: string, event: Event): WorkdayCo
 
     return {
         accountId,
+        id: event.resource?.id,
         date: event.start,
         startAt: dateToTimeString(event.start),
         endAt: dateToTimeString(event.end)
