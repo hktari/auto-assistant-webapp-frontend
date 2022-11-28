@@ -12,6 +12,14 @@ export function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[
     return resourceToEvent(date, configForDay.startAt, configForDay.endAt,
         { type: EventType.weeklyConfig, object: configForDay })
 }
+
+/**
+ * Checks whether the given date is present in the exceptions array
+ */
+export function containsWorkweekException(date: Date, exceptions: WorkweekException[]): boolean {
+    return exceptions.some(ex => ex.date.toISOString().substring(0, 10) === date.toISOString().substring(0, 10))
+}
+
 export function eventToWorkweekConfig(event: Event): WorkweekConfiguration {
     if (!event.resource?.object) {
         throw new Error('Required: event.resource.object. The event object was propably not created via workweekConfigToEvent()')

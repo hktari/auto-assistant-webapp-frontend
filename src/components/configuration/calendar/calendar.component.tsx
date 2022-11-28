@@ -7,7 +7,7 @@ import workdayApi from '../../../services/account/workday.service'
 import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../../services/util'
 import { WorkweekConfiguration } from '../../../interface/common.interface'
 import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
-import { EventMetadata, eventToWorkdayConfig, eventToWorkweekConfig, EventType, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
+import { containsWorkweekException as existsWorkweekException, EventMetadata, eventToWorkdayConfig, eventToWorkweekConfig, EventType, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
 import { Alert, AlertType, useAlerts } from '../../../providers/alert.provider'
 
 type CalendarConfigProps = {
@@ -58,15 +58,17 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
         /* -------------------------------- workweek -------------------------------- */
         // create events based on workweek for the next three months
+        const workweekEvents = []
         const targetDate = new Date()
         targetDate.setMonth(targetDate.getMonth() + 3)
 
         let curDate = new Date()
         while (curDate < targetDate) {
 
+            // an event is added if a weekly config exists and the curDate is not present inside workweekExceptions array
             const workweekEvent = workweekConfigToEvent(curDate, workweekConfig)
-            if (workweekEvent) {
-                events.push(workweekEvent)
+            if (workweekEvent && !existsWorkweekException(curDate, workweekExceptions)) {
+                workweekEvents.push(workweekEvent)
             }
 
             curDate.setDate(curDate.getDate() + 1)
@@ -112,7 +114,6 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         console.debug('event', 'remove')
 
         try {
-            // todo: if eventToRemove.resource === WorkweekConfiguration add exception, else remove WorkdayConfiguration
             const { id, type } = eventToRemove.resource as EventMetadata
             if (type === EventType.dailyConfig) {
                 await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
