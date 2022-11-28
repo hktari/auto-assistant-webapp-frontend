@@ -1,7 +1,7 @@
 import { MDBBtn, MDBContainer, MDBInput, MDBTable, MDBTableBody, MDBTableHead } from 'mdb-react-ui-kit'
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import CalendarConfig from '../components/configuration/calendar-config.component'
+import CalendarConfig from '../components/configuration/calendar/calendar.component'
 import WorkweekTable from '../components/configuration/workweek-table.component'
 import { useAuth } from '../providers/auth.provider'
 

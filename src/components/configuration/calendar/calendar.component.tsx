@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Calendar, momentLocalizer, Event, SlotInfo } from 'react-big-calendar'
 import moment from 'moment'
-import { useAuth } from '../../providers/auth.provider'
-import workweekConfigApi from '../../services/account/workweek-config.service'
-import workdayApi from '../../services/account/workday.service'
-import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../services/util'
-import { WorkweekConfiguration } from '../../interface/common.interface'
-import CalendarEditConfigModal from '../calendar-edit-config-modal.component'
+import { useAuth } from '../../../providers/auth.provider'
+import workweekConfigApi from '../../../services/account/workweek-config.service'
+import workdayApi from '../../../services/account/workday.service'
+import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../../services/util'
+import { WorkweekConfiguration } from '../../../interface/common.interface'
+import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
+import { workweekConfigToEvent } from './calendar.util'
 
 type CalendarConfigProps = {
 }
@@ -72,21 +73,6 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         setEvents(events)
         console.debug('done !')
 
-    }
-
-    function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[]): Event | null {
-        const configForDay = config.find(c => c.day === dateToDayOfWeek(date))
-        if (!configForDay) {
-            return null
-        }
-
-        return {
-            allDay: true,
-            title: 'test',
-            start: addTimeStringToDate(date, configForDay.startAt),
-            end: addTimeStringToDate(date, configForDay.endAt),
-            resource: configForDay
-        }
     }
 
     const localizer = momentLocalizer(moment)

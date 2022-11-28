@@ -22,9 +22,9 @@ const CalendarEditConfigModal = ({ event, onSave }: CalendarEditConfigModalProps
 
             // iso format is: YYYY-MM-DDTHH:mm
             setStartAtDate(event.start?.toISOString()?.substring(0, 10)!)
-            setStartAtTime(event.start?.toISOString()?.substring(11, 16)!)
             setEndAtDate(event.end?.toISOString()?.substring(0, 10)!)
-            setEndAtTime(event.end?.toISOString()?.substring(11, 16)!)
+            setStartAtTime(event.start?.toTimeString()?.substring(0, 5)!)
+            setEndAtTime(event.end?.toTimeString()?.substring(0, 5)!)
         }
         else {
             setShowModal(false)
