@@ -7,9 +7,10 @@ async function all(accountId: string): Promise<WorkdayConfiguration[]> {
     return dto.map(d => dtoToModel(accountId, d))
 }
 
-function add(workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration> {
+async function add(workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration> {
     const dto = mapToDto(workdayConfig)
-    return http.post(`/account/${workdayConfig.accountId}/workday`, dto)
+    const resultDto: Dto = await http.post(`/account/${workdayConfig.accountId}/workday`, dto)
+    return dtoToModel(workdayConfig.accountId, resultDto)
 }
 
 function remove(workdayConfig: WorkdayConfiguration): Promise<string> {
