@@ -15,6 +15,14 @@ export function dateToDateString(date: Date): string {
     return date.toISOString().substring(0, 10)
 }
 
+/**
+ * Converts the Date object to a time string in format HH:mm
+* @param date
+* @returns string in format: HH:mm in local time 
+ */
+export function dateToTimeString(date: Date): string {
+    return date.toLocaleTimeString().substring(0, 5).replace('.', ':')
+}
 
 /**
  * Adds the time given hours and minutes in a time string to the given Date object
