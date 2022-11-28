@@ -16,6 +16,20 @@ function remove(workdayConfig: WorkdayConfiguration): Promise<string> {
     return http.delete(`/account/${workdayConfig.accountId}/workday/${workdayConfig.id}`)
 }
 
+async function addOrUpdate(workdayConfig: WorkdayConfiguration): Promise<WorkdayConfiguration> {
+    try {
+        if (workdayConfig.id) {
+            console.debug('wokday.service', 'remove before add')
+            await remove(workdayConfig)
+        }
+    } catch (error) {
+        console.debug('workday.service', error)
+    }
+
+    console.debug('workday.service', 'add')
+    return await add(workdayConfig)
+}
+
 /* --------------------------------- utility -------------------------------- */
 
 
@@ -76,7 +90,7 @@ function dtoToModel(accountId: string, dto: Dto): WorkdayConfiguration {
 
 const workdayApi = {
     all,
-    add,
+    addOrUpdate,
     remove
 }
 
