@@ -4,7 +4,7 @@ import { Event } from 'react-big-calendar'
 
 type CalendarEditConfigModalProps = {
     event?: Event
-    onSave: (updated: Event, original?: Event) => void,
+    onSave: (updated: Event) => void,
     onRemove?: (original: Event) => void
     onHide?: () => void
 }
@@ -73,11 +73,15 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
     }
 
     function saveButtonHandler() {
-        onSave({
-            ...event,
-            start: joinToDate(startAtDate, startAtTime),
-            end: joinToDate(endAtDate, endAtTime)
-        }, event)
+
+        if (!event) {
+            throw new Error('Required: event')
+        }
+
+        event.start = joinToDate(startAtDate, startAtTime)
+        event.end = joinToDate(endAtDate, endAtTime)
+        onSave(event)
+        
         toggleShow()
     }
 

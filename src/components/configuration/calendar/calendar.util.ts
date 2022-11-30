@@ -3,6 +3,7 @@ import { dateToDayOfWeek, addTimeStringToDate, dateToDateString, dateToTimeStrin
 
 import { Calendar, momentLocalizer, Event, SlotInfo } from 'react-big-calendar'
 
+/* --------------------------------- mapping -------------------------------- */
 export function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[]): Event | null {
     const configForDay = config.find(c => c.day === dateToDayOfWeek(date))
     if (!configForDay) {
@@ -11,20 +12,6 @@ export function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[
 
     return resourceToEvent(date, configForDay.startAt, configForDay.endAt,
         { type: EventType.weeklyConfig, object: configForDay })
-}
-
-/**
- * Checks whether the given date is present in the exceptions array
- */
-export function containsWorkweekException(date: Date, exceptions: WorkweekException[]): boolean {
-    return exceptions.some(ex => ex.date.toISOString().substring(0, 10) === date.toISOString().substring(0, 10))
-}
-
-export function eventToWorkweekConfig(event: Event): WorkweekConfiguration {
-    if (!event.resource?.object) {
-        throw new Error('Required: event.resource.object. The event object was propably not created via workweekConfigToEvent()')
-    }
-    return event.resource.object as WorkweekConfiguration
 }
 
 export function workdayConfigToEvent(workdayConfig: WorkdayConfiguration): Event {
@@ -48,18 +35,6 @@ export function eventToWorkdayConfig(accountId: string, event: Event): WorkdayCo
     }
 }
 
-export enum EventType {
-    unknown,
-    dailyConfig,
-    weeklyConfig,
-}
-
-export interface EventMetadata {
-    id?: string,
-    type: EventType,
-    object: any
-}
-
 function resourceToEvent(date: Date, startAt: string, endAt: string, metadata: EventMetadata): Event {
     const startDate = addTimeStringToDate(date, startAt)
     const endDate = addTimeStringToDate(date, endAt)
@@ -77,4 +52,39 @@ function resourceToEvent(date: Date, startAt: string, endAt: string, metadata: E
         end: endDate,
         resource: metadata
     }
+}
+
+/**
+ * Checks whether the given date is present in the exceptions array
+ */
+export function containsWorkweekException(date: Date, exceptions: WorkweekException[]): boolean {
+    return exceptions.some(ex => ex.date.toISOString().substring(0, 10) === date.toISOString().substring(0, 10))
+}
+
+export function getWorkweekConfigForEventOrFail(event: Event, workweekConfigList: WorkweekConfiguration[]): WorkweekConfiguration {
+    if (!event.start) {
+        throw new Error('Required: event.start')
+    }
+
+    const eventDayOfWeek = dateToDayOfWeek(event.start)
+    const workweekConfig = workweekConfigList.find(wwc => wwc.day === eventDayOfWeek)
+
+    if (!workweekConfig) {
+        throw new Error(`Failed to find WorkweekConfiguration object for event. ${eventDayOfWeek} not found inside ${JSON.stringify(workweekConfigList)}`)
+    }
+
+    return workweekConfig
+}
+
+
+export enum EventType {
+    unknown,
+    dailyConfig,
+    weeklyConfig,
+}
+
+export interface EventMetadata {
+    id?: string,
+    type: EventType,
+    object: any
 }

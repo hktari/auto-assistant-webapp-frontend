@@ -7,27 +7,22 @@ import workdayApi from '../../../services/account/workday.service'
 import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../../services/util'
 import { WorkweekConfiguration } from '../../../interface/common.interface'
 import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
-import { containsWorkweekException as existsWorkweekException, EventMetadata, eventToWorkdayConfig, eventToWorkweekConfig, EventType, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
+import { containsWorkweekException as existsWorkweekException, EventMetadata, eventToWorkdayConfig, EventType, getWorkweekConfigForEvent, getWorkweekConfigForEventOrFail, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
 import { Alert, AlertType, useAlerts } from '../../../providers/alert.provider'
 
 type CalendarConfigProps = {
+    workweekConfigList: WorkweekConfiguration[]
 }
 
-const CalendarConfig = (props: CalendarConfigProps) => {
-    const [events, setEvents] = useState<Event[]>([
-        {
-            title: 'Learn cool stuff',
-            start: new Date(),
-            end: new Date(Date.now() + 1000 * 60 * 60),
-        },
-    ])
+const CalendarConfig = ({ workweekConfigList }: CalendarConfigProps) => {
+    const [events, setEvents] = useState<Event[]>([])
 
     const { user } = useAuth()
     const { addAlert } = useAlerts()
 
     useEffect(() => {
         fetchEvents()
-    }, [user])
+    }, [user, workweekConfigList])
 
     const handleSelectSlot = useCallback(
         ({ start, end }: SlotInfo) => {
@@ -55,9 +50,6 @@ const CalendarConfig = (props: CalendarConfigProps) => {
     async function fetchEvents() {
         let events: Event[] = []
 
-        console.debug('calendar', 'fetching workweek...')
-        const workweekConfig = await workweekConfigApi.get(user?.id!)
-
         console.debug('calendar', 'fetching workweek exceptions...')
         const workweekExceptions = await workweekConfigApi.getExceptions(user?.id!)
         console.debug('calendar', `got ${workweekExceptions.length}`)
@@ -76,7 +68,7 @@ const CalendarConfig = (props: CalendarConfigProps) => {
         while (curDate < targetDate) {
 
             // an event is added if a weekly config exists and the curDate is not present inside workweekExceptions array
-            const workweekEvent = workweekConfigToEvent(curDate, workweekConfig)
+            const workweekEvent = workweekConfigToEvent(curDate, workweekConfigList)
             if (workweekEvent && !existsWorkweekException(curDate, workweekExceptions)) {
                 events.push(workweekEvent)
             }
@@ -90,34 +82,40 @@ const CalendarConfig = (props: CalendarConfigProps) => {
 
 
         setEvents(events)
-        console.debug('done !')
-
     }
 
     const localizer = momentLocalizer(moment)
 
     const [editEvent, setEditEvent] = useState<Event | undefined>()
 
-    async function onSaveEvent(updated: Event, original?: Event) {
-        console.debug('saving event', updated)
+    async function onSaveEvent(event: Event) {
+        console.debug('saving event', event)
 
-        // todo: if original.resource.object === WorkweekConfiguration, then an exception has to be added
-        // otherwise the runner will not prefer the daily config over the weekly, and will try to execute both
+        if (!event.start) {
+            throw new Error('Required: event.start')
+        }
+
         try {
-            const newWorkday = await workdayApi.addOrUpdate(eventToWorkdayConfig(user?.id!, updated))
+            const { type }: EventMetadata = event?.resource
+
+            // editing a weekly config requires adding a workweek exception before adding a daily configuration
+            if (type === EventType.weeklyConfig) {
+                await workweekConfigApi.addExceptionForWorkweek(event.start, getWorkweekConfigForEventOrFail(event, workweekConfigList))
+            }
+
+
+            const newWorkday = await workdayApi.addOrUpdate(eventToWorkdayConfig(user?.id!, event))
             const newEvent = workdayConfigToEvent(newWorkday)
 
             const eventsUpdate = [...events]
-            if (original) {
-                const originalIdx = eventsUpdate.indexOf(original)
-                if (originalIdx !== -1) {
-                    eventsUpdate.splice(originalIdx, 1)
-                }
 
-                eventsUpdate.push(newEvent)
-            } else {
-                eventsUpdate.push(newEvent)
+            // Remove the original event if necessary, before adding the new one
+            const originalEventIdx = eventsUpdate.indexOf(event)
+            if (originalEventIdx !== -1) {
+                eventsUpdate.splice(originalEventIdx, 1)
             }
+
+            eventsUpdate.push(newEvent)
 
             setEvents(eventsUpdate)
             addAlert(new Alert('Uspešno posodobljeno', AlertType.success))
@@ -135,13 +133,17 @@ const CalendarConfig = (props: CalendarConfigProps) => {
             if (type === EventType.dailyConfig) {
                 await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
             } else if (type === EventType.weeklyConfig) {
-                await workweekConfigApi.addExceptionForWorkweek(eventToRemove.start!, eventToWorkweekConfig(eventToRemove))
+                await workweekConfigApi.addExceptionForWorkweek(eventToRemove.start!, getWorkweekConfigForEventOrFail(eventToRemove, workweekConfigList))
             }
 
             const eventsUpdate = [...events]
-            eventsUpdate.splice(eventsUpdate.indexOf(eventToRemove), 1)
-            setEvents(eventsUpdate)
+            const eventIdx = eventsUpdate.indexOf(eventToRemove)
+            if (eventIdx !== -1) {
+                console.warn('Expected to find eventToRemove inside events list', eventToRemove, events)
+                eventsUpdate.splice(eventIdx, 1)
+            }
 
+            setEvents(eventsUpdate)
             addAlert(new Alert('Uspešno izbrisano', AlertType.success))
         } catch (error) {
             console.error(error)
