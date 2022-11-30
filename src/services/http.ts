@@ -14,7 +14,7 @@ http.defaults.headers.post['Content-Type'] = 'application/json'
 
 http.defaults.transformResponse = [function (data: any) {
     try {
-        const dateKeyRx = /date/i
+        const dateKeyRx = /date|timestamp/i
         return JSON.parse(data, (key, value) => {
             return dateKeyRx.test(key) ? new Date(value) : value
         })
