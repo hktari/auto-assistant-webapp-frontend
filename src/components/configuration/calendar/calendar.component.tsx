@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Calendar, momentLocalizer, Event, SlotInfo } from 'react-big-calendar'
-import moment from 'moment'
+import { Calendar, momentLocalizer, Event, SlotInfo, dateFnsLocalizer } from 'react-big-calendar'
 import { useAuth } from '../../../providers/auth.provider'
 import workweekConfigApi from '../../../services/account/workweek-config.service'
 import workdayApi from '../../../services/account/workday.service'
@@ -9,6 +8,11 @@ import { WorkweekConfiguration } from '../../../interface/common.interface'
 import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
 import { containsWorkweekException as existsWorkweekException, EventMetadata, eventToWorkdayConfig, EventType, getWorkweekConfigForEventOrFail, workdayConfigToEvent, getEventForWorkweekConfigAndDate } from './calendar.util'
 import { Alert, AlertType, useAlerts } from '../../../providers/alert.provider'
+import format from 'date-fns/format'
+import parse from 'date-fns/parse'
+import startOfWeek from 'date-fns/startOfWeek'
+import getDay from 'date-fns/getDay'
+import sl from 'date-fns/locale/sl'
 
 type CalendarConfigProps = {
     workweekData: WorkweekConfiguration[]
@@ -20,7 +24,20 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
     const [addNewEvent, setAddNewEvent] = useState(false)
     const { user } = useAuth()
     const { addAlert } = useAlerts()
-    const localizer = momentLocalizer(moment)
+
+
+    const locales = {
+        'sl': sl,
+        'sl-SI': sl,
+    }
+
+    const localizer = dateFnsLocalizer({
+        format,
+        parse,
+        startOfWeek,
+        getDay,
+        locales,
+    })
 
     useEffect(() => {
         updateCalendar()
@@ -97,9 +114,9 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
         }
 
         try {
-            if(event.resource){
+            if (event.resource) {
                 const { type }: EventMetadata = event.resource
-    
+
                 // editing a weekly config requires adding a workweek exception before adding a daily configuration
                 if (type === EventType.weeklyConfig) {
                     await workweekConfigApi.addExceptionForWorkweek(event.start, getWorkweekConfigForEventOrFail(event, workweekData))
@@ -166,9 +183,9 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
                 onSelectEvent={handleSelectEvent}
                 onSelectSlot={handleSelectSlot}
             />
-            <CalendarEditConfigModal 
-            event={editEvent} editing={!addNewEvent}
-            onSave={onSaveEvent} onRemove={onRemoveEvent} />
+            <CalendarEditConfigModal
+                event={editEvent} editing={!addNewEvent}
+                onSave={onSaveEvent} onRemove={onRemoveEvent} />
         </div>
     )
 }

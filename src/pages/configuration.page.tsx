@@ -47,10 +47,8 @@ const ConfigurationPage = function (props: ConfigurationPageProps) {
             </section>
 
             <section className="my-4" data-section="exceptions-config">
-                <h3>Izjeme</h3>
+                <h3>Koledar</h3>
                 <CalendarConfig workweekData={workweekData} />
-                <br />
-                on day of month click, either add daily config or add weekly exception
             </section>
         </MDBContainer>
     )
