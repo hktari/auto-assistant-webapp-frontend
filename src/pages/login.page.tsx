@@ -11,6 +11,8 @@ const LoginPage = (props: LoginPageProps) => {
         email: '',
         password: ''
     });
+    const [hidePassword, setHidePassword] = useState(true)
+
     const [validationErrors, setValidationErrors] = useState(new Map())
     const formRef = useRef<HTMLFormElement>(null)
     const [errorMessage, setErrorMessage] = useState('')
@@ -67,7 +69,9 @@ const LoginPage = (props: LoginPageProps) => {
             <MDBValidation noValidate={true} ref={formRef}
                 className={`row g-3`}
                 onSubmit={ev => performLogin()}>
-                <MDBValidationItem invalid={validationErrors.has('email')} feedback={validationErrors.get('email')} className='col-md-4'>
+                <MDBValidationItem invalid={validationErrors.has('email')}
+                    feedback={validationErrors.get('email')}
+                    className='col-12'>
                     <MDBInput
                         value={formValue.email}
                         name='email'
@@ -80,22 +84,37 @@ const LoginPage = (props: LoginPageProps) => {
                     />
                 </MDBValidationItem>
                 <div
-                    className='col-md-4'>
-                    <MDBInput
-                        value={formValue.password}
-                        name='password'
-                        onChange={onChange}
-                        onInput={ev => performValidation()}
-                        id='passwordInput'
-                        required
-                        label='Geslo'
-                    />
+                    className='col-12 input-group'>
+                    <div className="flex-grow-1">
+                        <MDBInput
+                            value={formValue.password}
+                            name='password'
+                            type={`${hidePassword ? 'password' : 'text'}`}
+                            onChange={onChange}
+                            onInput={ev => performValidation()}
+                            id='passwordInput'
+                            required
+                            label='Geslo'
+                        />
+                    </div>
+
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setHidePassword(!hidePassword)}
+                        type="button">
+                        <div className="color-primary fs-6">
+                            <i hidden={!hidePassword} className="far fa-eye"></i>
+                            <i hidden={hidePassword} className="far fa-eye-slash"></i>
+                        </div>
+                    </button>
+
+
                 </div>
                 <div className="text-danger">
                     {errorMessage}
                 </div>
                 <div className='col-12'>
-                    <MDBBtn type='submit' block={true}>Submit form</MDBBtn>
+                    <MDBBtn type='submit' block={true}>Vpiši me</MDBBtn>
                 </div>
             </MDBValidation>
         </MDBContainer>
