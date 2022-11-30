@@ -7,22 +7,22 @@ import workdayApi from '../../../services/account/workday.service'
 import { dateToDayOfWeek, addTimeStringToDate as addTimeStringToDate } from '../../../services/util'
 import { WorkweekConfiguration } from '../../../interface/common.interface'
 import CalendarEditConfigModal from '../../calendar-edit-config-modal.component'
-import { containsWorkweekException as existsWorkweekException, EventMetadata, eventToWorkdayConfig, EventType, getWorkweekConfigForEvent, getWorkweekConfigForEventOrFail, workdayConfigToEvent, workweekConfigToEvent } from './calendar.util'
+import { containsWorkweekException as existsWorkweekException, EventMetadata, eventToWorkdayConfig, EventType, getWorkweekConfigForEventOrFail, workdayConfigToEvent, getEventForWorkweekConfigAndDate } from './calendar.util'
 import { Alert, AlertType, useAlerts } from '../../../providers/alert.provider'
 
 type CalendarConfigProps = {
-    workweekConfigList: WorkweekConfiguration[]
+    workweekData: WorkweekConfiguration[]
 }
 
-const CalendarConfig = ({ workweekConfigList }: CalendarConfigProps) => {
+const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
     const [events, setEvents] = useState<Event[]>([])
 
     const { user } = useAuth()
     const { addAlert } = useAlerts()
 
     useEffect(() => {
-        fetchEvents()
-    }, [user, workweekConfigList])
+        updateCalendar()
+    }, [user, workweekData])
 
     const handleSelectSlot = useCallback(
         ({ start, end }: SlotInfo) => {
@@ -47,7 +47,7 @@ const CalendarConfig = ({ workweekConfigList }: CalendarConfigProps) => {
         []
     )
 
-    async function fetchEvents() {
+    async function updateCalendar() {
         let events: Event[] = []
 
         console.debug('calendar', 'fetching workweek exceptions...')
@@ -68,7 +68,7 @@ const CalendarConfig = ({ workweekConfigList }: CalendarConfigProps) => {
         while (curDate < targetDate) {
 
             // an event is added if a weekly config exists and the curDate is not present inside workweekExceptions array
-            const workweekEvent = workweekConfigToEvent(curDate, workweekConfigList)
+            const workweekEvent = getEventForWorkweekConfigAndDate(curDate, workweekData)
             if (workweekEvent && !existsWorkweekException(curDate, workweekExceptions)) {
                 events.push(workweekEvent)
             }
@@ -100,7 +100,7 @@ const CalendarConfig = ({ workweekConfigList }: CalendarConfigProps) => {
 
             // editing a weekly config requires adding a workweek exception before adding a daily configuration
             if (type === EventType.weeklyConfig) {
-                await workweekConfigApi.addExceptionForWorkweek(event.start, getWorkweekConfigForEventOrFail(event, workweekConfigList))
+                await workweekConfigApi.addExceptionForWorkweek(event.start, getWorkweekConfigForEventOrFail(event, workweekData))
             }
 
 
@@ -133,7 +133,7 @@ const CalendarConfig = ({ workweekConfigList }: CalendarConfigProps) => {
             if (type === EventType.dailyConfig) {
                 await workdayApi.remove(eventToWorkdayConfig(user?.id!, eventToRemove))
             } else if (type === EventType.weeklyConfig) {
-                await workweekConfigApi.addExceptionForWorkweek(eventToRemove.start!, getWorkweekConfigForEventOrFail(eventToRemove, workweekConfigList))
+                await workweekConfigApi.addExceptionForWorkweek(eventToRemove.start!, getWorkweekConfigForEventOrFail(eventToRemove, workweekData))
             }
 
             const eventsUpdate = [...events]

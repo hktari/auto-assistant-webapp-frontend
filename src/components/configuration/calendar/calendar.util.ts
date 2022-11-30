@@ -4,8 +4,15 @@ import { dateToDayOfWeek, addTimeStringToDate, dateToDateString, dateToTimeStrin
 import { Calendar, momentLocalizer, Event, SlotInfo } from 'react-big-calendar'
 
 /* --------------------------------- mapping -------------------------------- */
-export function workweekConfigToEvent(date: Date, config: WorkweekConfiguration[]): Event | null {
-    const configForDay = config.find(c => c.day === dateToDayOfWeek(date))
+/**
+ * Checks whether there is a valid non empty config for the given day of the week. If so it returns an Event object otherwise it returns null.
+ * @param date 
+ * @param config 
+ * @returns An Event object representing the given weekly configuration for the given date
+ */
+export function getEventForWorkweekConfigAndDate(date: Date, config: WorkweekConfiguration[]): Event | null {
+    const dayOfWeek = dateToDayOfWeek(date)
+    const configForDay = config.find(c => !c.isEmpty() && !c.isInvalid() && c.day === dayOfWeek)
     if (!configForDay) {
         return null
     }
@@ -67,7 +74,7 @@ export function getWorkweekConfigForEventOrFail(event: Event, workweekConfigList
     }
 
     const eventDayOfWeek = dateToDayOfWeek(event.start)
-    const workweekConfig = workweekConfigList.find(wwc => wwc.day === eventDayOfWeek)
+    const workweekConfig = workweekConfigList.find(wwc => !wwc.isEmpty() && !wwc.isInvalid() && wwc.day === eventDayOfWeek)
 
     if (!workweekConfig) {
         throw new Error(`Failed to find WorkweekConfiguration object for event. ${eventDayOfWeek} not found inside ${JSON.stringify(workweekConfigList)}`)

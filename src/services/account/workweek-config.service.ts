@@ -6,17 +6,25 @@ import { addTimeStringToDate, dateToDayOfWeek, localTimeStringToUTC, utcTimeStri
 
 async function get(accountId: string): Promise<WorkweekConfiguration[]> {
     const responseDto: Dto[] = await http.get(`/account/${accountId}/workweek`)
-    return responseDto.map(dto => mapDtoToWorkweekConfig(accountId, dto))
+
+    const workweekData = responseDto.map(dto => mapDtoToWorkweekConfig(accountId, dto))
+    addMissingDays(accountId, workweekData)
+
+    return workweekData
 }
 
-async function addOrUpdate(accountId: string, workweekConfig: WorkweekConfiguration[]): Promise<string> {
+async function addOrUpdate(accountId: string, workweekData: WorkweekConfiguration[]): Promise<string> {
     try {
         await http.delete(`/account/${accountId}/workweek`)
     } catch (error) {
         console.debug('adding workweek configuration. None exists', error)
     }
 
-    return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToDto(workweekConfig))
+    // filter out rows where startAt and endAt equal ''
+    const filteredWorkweekData = workweekData.filter(wwd => !wwd.isInvalid() && !wwd.isEmpty())
+    console.debug('workweek-config.service', `Sending ${filteredWorkweekData.length} out of ${workweekData.length} valid and non-empty`)
+
+    return await http.post(`/account/${accountId}/workweek`, mapWorkweekConfigToDto(filteredWorkweekData))
 }
 
 function addExceptionForWorkweek(date: Date, workweekConfig: WorkweekConfiguration): Promise<WorkweekException[]> {
@@ -54,6 +62,18 @@ function removeException(workweekException: WorkweekException): Promise<string> 
 
 
 /* --------------------------------- utility -------------------------------- */
+
+// The api doesn't return all days of the week.
+// add those for which there is no configuration yet
+function addMissingDays(accountId: string, workweek: WorkweekConfiguration[]) {
+    const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+    for (const day of daysOfWeek) {
+        if (!workweek.some(wwc => wwc.day === day)) {
+            const missingWorkweekConfig = new WorkweekConfiguration(accountId, day)
+            workweek.splice(daysOfWeek.indexOf(day), 0, missingWorkweekConfig)
+        }
+    }
+}
 
 interface Dto {
     day: string

@@ -56,6 +56,18 @@ export class WorkweekConfiguration {
     }
 
 
+    isInvalid() {
+        return (this.startAt.trim() && !this.endAt.trim()) ||
+            (!this.startAt.trim() && this.endAt.trim())
+    }
+
+    /**
+     * @returns true when startAt and endAt are empty or undefined 
+     */
+    isEmpty() {
+        return !this.startAt.trim() && !this.endAt.trim()
+    }
+
     clone() {
         return new WorkweekConfiguration(this.accountId, this.day, this.startAt, this.endAt)
     }

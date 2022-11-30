@@ -8,29 +8,28 @@ import { compareArraysEqualShallow } from '../../util/arrays.util'
 import WorkweekTableRow from './workweek-table/workweek-table-row.component'
 
 type WorkweekTableProps = {
-    accountId: string
+    accountId: string,
+    workweekData: WorkweekConfiguration[]
+    setWorkweekData: (workweekData: WorkweekConfiguration[]) => void
 }
 
-const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
-    const [workweekData, setWorkweekData] = useState<WorkweekConfiguration[]>([])
+const WorkweekTable = ({ accountId, workweekData: originalWorkweekData, setWorkweekData: updateWorkweekData }: WorkweekTableProps) => {
+    const [workweekData, setWorkweekData] = useState(originalWorkweekData)
     const [validationErrors, setValidationErrors] = useState(new Map())
     const [dataChanged, setDataChanged] = useState(false)
     const [performingUpdate, setPerformingUpdate] = useState(false)
-    const originalWorkweekData = useRef<WorkweekConfiguration[]>([])
 
     const { addAlert } = useAlerts()
-    const { user } = useAuth()
 
-    // init
     useEffect(() => {
-        fetchWorkweekData()
-    }, [accountId])
-
+        setWorkweekData(originalWorkweekData)
+    }, [originalWorkweekData])
+    
     // compare server data with client data 
     // set dataChanged flag
     useEffect(() => {
         const checkDataChangedTimeout = setTimeout(() => {
-            setDataChanged(!compareArraysEqualShallow(workweekData, originalWorkweekData.current))
+            setDataChanged(!compareArraysEqualShallow(workweekData, originalWorkweekData))
         }, 500)
 
         return () => {
@@ -43,12 +42,12 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
         try {
             setPerformingUpdate(true)
 
-            // filter out rows where startAt and endAt equal ''
-            const filteredWorkweekData = workweekData.filter(d => d.endAt.trim() && d.startAt.trim())
-            console.log(`${filteredWorkweekData.length} of ${workweekData.length} valid to send`)
+            await workweekConfigApi.addOrUpdate(accountId, workweekData)
 
-            await workweekConfigApi.addOrUpdate(accountId, filteredWorkweekData)
+            setWorkweekData(workweekData)
 
+            // notify parent
+            updateWorkweekData(workweekData)
             addAlert(new Alert('Uspešno posodobljeno !', AlertType.success))
 
         } catch (error) {
@@ -56,22 +55,6 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
             addAlert(new Alert('Napaka pri posodabljanju !', AlertType.error))
         } finally {
             setPerformingUpdate(false)
-        }
-    }
-
-    async function fetchWorkweekData() {
-        try {
-            const response = await workweekConfigApi.get(accountId)
-            console.debug('workweek data', 'got', response)
-
-            addMissingDays(response)
-
-            originalWorkweekData.current = response
-
-            console.debug('workweek data', 'add missing', response)
-            setWorkweekData(response)
-        } catch (error) {
-            console.error('failed to fetch workweek data', error)
         }
     }
 
@@ -94,27 +77,12 @@ const WorkweekTable = ({ accountId }: WorkweekTableProps) => {
 
     }
 
-    // The api doesn't return all days of the week.
-    // add those for which there is no configuration yet
-    function addMissingDays(workweek: WorkweekConfiguration[]) {
-        const daysOfWeek = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-        for (const day of daysOfWeek) {
-            if (!workweek.some(wwc => wwc.day === day)) {
-                const missingWorkweekConfig = new WorkweekConfiguration(user?.id!, day)
-                workweek.splice(daysOfWeek.indexOf(day), 0, missingWorkweekConfig)
-            }
-        }
-    }
-
     // either both values are defined or both are ''
     function validateWorkweekData() {
         const errors = new Map()
 
         console.debug(workweekData)
-        const invalidConfigs = workweekData.filter(d =>
-            (d.startAt.trim() && !d.endAt.trim()) ||
-            (!d.startAt.trim() && d.endAt.trim()))
-
+        const invalidConfigs = workweekData.filter(wd => wd.isInvalid())
         console.debug('invalid configurations', invalidConfigs)
 
         for (const invalid of invalidConfigs) {
