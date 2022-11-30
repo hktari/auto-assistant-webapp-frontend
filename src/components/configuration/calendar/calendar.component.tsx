@@ -97,11 +97,13 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
         }
 
         try {
-            const { type }: EventMetadata = event?.resource
-
-            // editing a weekly config requires adding a workweek exception before adding a daily configuration
-            if (type === EventType.weeklyConfig) {
-                await workweekConfigApi.addExceptionForWorkweek(event.start, getWorkweekConfigForEventOrFail(event, workweekData))
+            if(event.resource){
+                const { type }: EventMetadata = event.resource
+    
+                // editing a weekly config requires adding a workweek exception before adding a daily configuration
+                if (type === EventType.weeklyConfig) {
+                    await workweekConfigApi.addExceptionForWorkweek(event.start, getWorkweekConfigForEventOrFail(event, workweekData))
+                }
             }
 
 
