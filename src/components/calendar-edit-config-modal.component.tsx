@@ -164,10 +164,10 @@ const CalendarEditConfigModal = ({ event, editing, onSave, onRemove, onHide }: C
                                 Odstrani
                             </MDBBtn>
                         </div>
-                        <MDBBtn color='secondary' onClick={toggleShow}>
-                            Close
+                        <MDBBtn className='d-none d-md-inline' color='secondary' onClick={toggleShow}>
+                            Prekliči
                         </MDBBtn>
-                        <MDBBtn onClick={saveButtonHandler}>Save changes</MDBBtn>
+                        <MDBBtn onClick={saveButtonHandler}>Shrani</MDBBtn>
                     </MDBModalFooter>
                 </MDBModalContent>
             </MDBModalDialog>
