@@ -10,9 +10,9 @@ type CalendarEditConfigModalProps = {
 }
 
 const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEditConfigModalProps) => {
-    const [startAtDate, setStartAtDate] = useState<string>(new Date().toISOString().substring(0, 10))
+    const [startAtDate, setStartAtDate] = useState<string>(toDatePickerFormat(new Date))
     const [startAtTime, setStartAtTime] = useState<string>('')
-    const [endAtDate, setEndAtDate] = useState<string>(new Date().toISOString().substring(0, 10))
+    const [endAtDate, setEndAtDate] = useState<string>(toDatePickerFormat(new Date()))
     const [endAtTime, setEndAtTime] = useState<string>('')
     const [showModal, setShowModal] = useState(false);
 
@@ -38,10 +38,10 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
             }
 
             // iso format is: YYYY-MM-DDTHH:mm
-            setStartAtDate(startDatetime.toISOString()?.substring(0, 10)!)
-            setEndAtDate(endDatetime.toISOString()?.substring(0, 10)!)
-            setStartAtTime(startDatetime.toTimeString()?.substring(0, 5)!)
-            setEndAtTime(endDatetime.toTimeString()?.substring(0, 5)!)
+            setStartAtDate(toDatePickerFormat(startDatetime))
+            setEndAtDate(toDatePickerFormat(endDatetime))
+            setStartAtTime(toTimePickerFormat(startDatetime))
+            setEndAtTime(toTimePickerFormat(endDatetime))
 
             setCanRemove(true)
         }
@@ -52,6 +52,14 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
     }, [event])
 
 
+    function toTimePickerFormat(date: Date) {
+        return date.toTimeString().substring(0, 5)
+    }
+
+    function toDatePickerFormat(date: Date) {
+        return date.toISOString().substring(0, 10)
+    }
+
     /**
      * 
      * @param date YYYY-MM-DD
@@ -59,6 +67,12 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
      */
     function joinToDate(date: string, time: string) {
         return new Date(`${date}T${time}`)
+    }
+
+    function getMaxForDate(date: string) {
+        const tmp = new Date(date)
+        tmp.setDate(tmp.getDate() + 1)
+        return toDatePickerFormat(tmp)
     }
 
     function removeButtonHandler() {
@@ -81,7 +95,7 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
         event.start = joinToDate(startAtDate, startAtTime)
         event.end = joinToDate(endAtDate, endAtTime)
         onSave(event)
-        
+
         toggleShow()
     }
 
@@ -103,7 +117,11 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
                                     required
                                     type={'date'}
                                     value={startAtDate}
-                                    onChange={e => setStartAtDate(e.currentTarget.value)}
+                                    disabled={true}
+                                    onChange={e => {
+                                        setStartAtDate(e.currentTarget.value)
+                                        setEndAtDate(e.currentTarget.value)
+                                    }}
                                 />
                             </MDBValidationItem>
                             <MDBValidationItem className='col-6'>
@@ -124,6 +142,8 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
                                     required
                                     type={'date'}
                                     value={endAtDate}
+                                    min={startAtDate}
+                                    max={getMaxForDate(startAtDate)}
                                     onChange={e => setEndAtDate(e.currentTarget.value)}
                                 />
                             </MDBValidationItem>
