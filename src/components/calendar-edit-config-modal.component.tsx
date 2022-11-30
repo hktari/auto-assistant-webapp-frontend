@@ -4,12 +4,13 @@ import { Event } from 'react-big-calendar'
 
 type CalendarEditConfigModalProps = {
     event?: Event
+    editing: boolean
     onSave: (updated: Event) => void,
     onRemove?: (original: Event) => void
     onHide?: () => void
 }
 
-const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEditConfigModalProps) => {
+const CalendarEditConfigModal = ({ event, editing, onSave, onRemove, onHide }: CalendarEditConfigModalProps) => {
     const [startAtDate, setStartAtDate] = useState<string>(toDatePickerFormat(new Date))
     const [startAtTime, setStartAtTime] = useState<string>('')
     const [endAtDate, setEndAtDate] = useState<string>(toDatePickerFormat(new Date()))
@@ -43,11 +44,10 @@ const CalendarEditConfigModal = ({ event, onSave, onRemove, onHide }: CalendarEd
             setStartAtTime(toTimePickerFormat(startDatetime))
             setEndAtTime(toTimePickerFormat(endDatetime))
 
-            setCanRemove(true)
+            setCanRemove(editing)
         }
         else {
             setShowModal(false)
-            setCanRemove(false)
         }
     }, [event])
 

@@ -16,9 +16,11 @@ type CalendarConfigProps = {
 
 const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
     const [events, setEvents] = useState<Event[]>([])
-
+    const [editEvent, setEditEvent] = useState<Event | undefined>()
+    const [addNewEvent, setAddNewEvent] = useState(false)
     const { user } = useAuth()
     const { addAlert } = useAlerts()
+    const localizer = momentLocalizer(moment)
 
     useEffect(() => {
         updateCalendar()
@@ -36,6 +38,7 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
             }
 
             setEditEvent({ start, end })
+            setAddNewEvent(true)
         },
         [setEvents]
     )
@@ -43,6 +46,7 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
     const handleSelectEvent = useCallback(
         (event: Event) => {
             setEditEvent(event)
+            setAddNewEvent(false)
         },
         []
     )
@@ -84,9 +88,6 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
         setEvents(events)
     }
 
-    const localizer = momentLocalizer(moment)
-
-    const [editEvent, setEditEvent] = useState<Event | undefined>()
 
     async function onSaveEvent(event: Event) {
         console.debug('saving event', event)
@@ -163,7 +164,9 @@ const CalendarConfig = ({ workweekData }: CalendarConfigProps) => {
                 onSelectEvent={handleSelectEvent}
                 onSelectSlot={handleSelectSlot}
             />
-            <CalendarEditConfigModal event={editEvent} onSave={onSaveEvent} onRemove={onRemoveEvent} />
+            <CalendarEditConfigModal 
+            event={editEvent} editing={!addNewEvent}
+            onSave={onSaveEvent} onRemove={onRemoveEvent} />
         </div>
     )
 }
